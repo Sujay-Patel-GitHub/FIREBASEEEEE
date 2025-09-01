@@ -1,0 +1,106 @@
+'use client';
+import {
+  SidebarHeader,
+  SidebarContent,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+  SidebarFooter,
+} from '@/components/ui/sidebar';
+import {
+  LayoutDashboard,
+  Leaf,
+  History,
+  Settings,
+  LogOut,
+  User as UserIcon,
+} from 'lucide-react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useAuth } from '@/context/auth-context';
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import { Button } from '../ui/button';
+
+const menuItems = [
+  { href: '/', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/analysis-history', label: 'Analysis History', icon: History },
+  { href: '/profile', label: 'Profile', icon: UserIcon },
+  { href: '/settings', label: 'Settings', icon: Settings },
+];
+
+export function SidebarNav() {
+  const pathname = usePathname();
+  const { user, isGuest, signOut } = useAuth();
+
+  const getInitials = (name: string) => {
+    const names = name.split(' ');
+    if (names.length > 1) {
+      return `${names[0][0]}${names[names.length - 1][0]}`;
+    }
+    return names[0][0];
+  };
+
+  return (
+    <>
+      <SidebarHeader className="p-4">
+        <div className="flex items-center gap-2">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+            <Leaf className="h-6 w-6" />
+          </div>
+          <div className="flex flex-col">
+            <h2 className="text-lg font-semibold tracking-tight text-foreground">
+              LeafWise AI
+            </h2>
+          </div>
+        </div>
+      </SidebarHeader>
+      <SidebarContent className="p-2">
+        <SidebarMenu>
+          {menuItems.map((item) => (
+            <SidebarMenuItem key={item.href}>
+              <SidebarMenuButton
+                asChild
+                isActive={pathname === item.href}
+                className="justify-start"
+                disabled={(item.href === '/analysis-history' || item.href === '/profile') && isGuest}
+              >
+                <Link href={item.href}>
+                  <item.icon className="h-4 w-4" />
+                  <span>{item.label}</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          ))}
+        </SidebarMenu>
+      </SidebarContent>
+      <SidebarFooter className="p-2">
+        {user ? (
+          <div className="flex items-center gap-3 p-2 rounded-lg bg-muted/50">
+            <Avatar className="h-9 w-9">
+              <AvatarImage src={user.photoURL ?? ''} alt={user.displayName ?? 'User'} />
+              <AvatarFallback>{user.displayName ? getInitials(user.displayName) : 'U'}</AvatarFallback>
+            </Avatar>
+            <div className="flex-1 overflow-hidden">
+                <p className="text-sm font-semibold truncate">{user.displayName}</p>
+                <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+            </div>
+            <SidebarMenuButton variant="ghost" size="icon" className="h-8 w-8" onClick={signOut}>
+                <LogOut />
+            </SidebarMenuButton>
+          </div>
+        ) : isGuest ? (
+          <div className="flex flex-col items-center text-center gap-2 p-4 rounded-lg bg-muted/50">
+             <Avatar className="h-12 w-12">
+              <AvatarFallback><UserIcon /></AvatarFallback>
+            </Avatar>
+             <p className="text-sm font-semibold">Guest Mode</p>
+             <p className="text-xs text-muted-foreground">Sign in to save your analysis history.</p>
+             <Link href="/auth/signin" className='w-full'>
+              <Button className="w-full" size="sm">Sign In</Button>
+             </Link>
+          </div>
+        ) : null}
+      </SidebarFooter>
+    </>
+  );
+}
