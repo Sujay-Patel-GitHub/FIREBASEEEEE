@@ -4,7 +4,16 @@ import {config} from 'dotenv';
 
 config();
 
+if (!process.env.GEMINI_API_KEY) {
+  throw new Error(
+    'Please set the GEMINI_API_KEY environment variable.'
+  );
+}
+
 export const ai = genkit({
-  plugins: [googleAI()],
-  model: 'googleai/gemini-2.5-flash',
+  plugins: [
+    googleAI({
+      apiKey: process.env.GEMINI_API_KEY,
+    }),
+  ],
 });
