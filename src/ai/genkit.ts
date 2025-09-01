@@ -1,19 +1,17 @@
 import {genkit} from 'genkit';
 import {googleAI} from '@genkit-ai/googleai';
-import {config} from 'dotenv';
 
-config();
+// This function will be called by flows to get a configured Genkit instance.
+export function configureGenkit() {
+  if (!process.env.GEMINI_API_KEY) {
+    throw new Error('GEMINI_API_KEY environment variable not set.');
+  }
 
-if (!process.env.GEMINI_API_KEY) {
-  throw new Error(
-    'Please set the GEMINI_API_KEY environment variable.'
-  );
+  return genkit({
+    plugins: [
+      googleAI({
+        apiKey: process.env.GEMINI_API_KEY,
+      }),
+    ],
+  });
 }
-
-export const ai = genkit({
-  plugins: [
-    googleAI({
-      apiKey: process.env.GEMINI_API_KEY,
-    }),
-  ],
-});
