@@ -1,4 +1,3 @@
-// Summarize Disease Analysis Flow
 'use server';
 
 /**
@@ -26,10 +25,6 @@ const SummarizeDiseaseAnalysisOutputSchema = z.object({
   summary: z.string().describe('A concise summary of the disease analysis, including key insights and recommended actions.'),
 });
 export type SummarizeDiseaseAnalysisOutput = z.infer<typeof SummarizeDiseaseAnalysisOutputSchema>;
-
-export async function summarizeDiseaseAnalysis(input: SummarizeDiseaseAnalysisInput): Promise<SummarizeDiseaseAnalysisOutput> {
-  return summarizeDiseaseAnalysisFlow(input);
-}
 
 const prompt = ai.definePrompt({
   name: 'summarizeDiseaseAnalysisPrompt',
@@ -59,3 +54,7 @@ const summarizeDiseaseAnalysisFlow = ai.defineFlow(
     return output!;
   }
 );
+
+export async function summarizeDiseaseAnalysis(input: SummarizeDiseaseAnalysisInput): Promise<SummarizeDiseaseAnalysisOutput> {
+  return summarizeDiseaseAnalysisFlow(input);
+}

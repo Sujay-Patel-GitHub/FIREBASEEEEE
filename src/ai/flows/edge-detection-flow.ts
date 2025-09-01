@@ -26,12 +26,6 @@ const EdgeDetectionOutputSchema = z.object({
 });
 export type EdgeDetectionOutput = z.infer<typeof EdgeDetectionOutputSchema>;
 
-export async function generateEdgeDetections(
-  input: EdgeDetectionInput
-): Promise<EdgeDetectionOutput> {
-  return edgeDetectionFlow(input);
-}
-
 const prompt = ai.definePrompt({
   name: 'edgeDetectionPrompt',
   input: { schema: EdgeDetectionInputSchema },
@@ -42,6 +36,7 @@ const prompt = ai.definePrompt({
 
   Image to process: {{media url=photoDataUri}}`,
 });
+
 
 const edgeDetectionFlow = ai.defineFlow(
   {
@@ -54,3 +49,9 @@ const edgeDetectionFlow = ai.defineFlow(
     return output!;
   }
 );
+
+export async function generateEdgeDetections(
+  input: EdgeDetectionInput
+): Promise<EdgeDetectionOutput> {
+  return edgeDetectionFlow(input);
+}

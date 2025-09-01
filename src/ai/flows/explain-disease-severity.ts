@@ -25,12 +25,6 @@ const ExplainDiseaseSeverityOutputSchema = z.object({
 });
 export type ExplainDiseaseSeverityOutput = z.infer<typeof ExplainDiseaseSeverityOutputSchema>;
 
-export async function explainDiseaseSeverity(
-  input: ExplainDiseaseSeverityInput
-): Promise<ExplainDiseaseSeverityOutput> {
-  return explainDiseaseSeverityFlow(input);
-}
-
 const prompt = ai.definePrompt({
   name: 'explainDiseaseSeverityPrompt',
   input: {schema: ExplainDiseaseSeverityInputSchema},
@@ -53,3 +47,10 @@ const explainDiseaseSeverityFlow = ai.defineFlow(
     return output!;
   }
 );
+
+
+export async function explainDiseaseSeverity(
+  input: ExplainDiseaseSeverityInput
+): Promise<ExplainDiseaseSeverityOutput> {
+  return explainDiseaseSeverityFlow(input);
+}

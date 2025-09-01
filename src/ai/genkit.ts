@@ -1,17 +1,18 @@
 import {genkit} from 'genkit';
 import {googleAI} from '@genkit-ai/googleai';
 
-// This function will be called by flows to get a configured Genkit instance.
-export function configureGenkit() {
-  if (!process.env.GEMINI_API_KEY) {
-    throw new Error('GEMINI_API_KEY environment variable not set.');
-  }
+// IMPORTANT: The API key is hardcoded here as requested for personal use.
+// For production applications, it is strongly recommended to use environment variables.
+const GEMINI_API_KEY = "AIzaSyAHeOv8AfWeJIrugZO4kmiqyhm60Dz3Gk4";
 
-  return genkit({
-    plugins: [
-      googleAI({
-        apiKey: process.env.GEMINI_API_KEY,
-      }),
-    ],
-  });
+if (!GEMINI_API_KEY) {
+  throw new Error('GEMINI_API_KEY is not defined in src/ai/genkit.ts');
 }
+
+export const ai = genkit({
+  plugins: [
+    googleAI({
+      apiKey: GEMINI_API_KEY,
+    }),
+  ],
+});

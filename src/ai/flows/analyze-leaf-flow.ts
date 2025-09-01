@@ -2,12 +2,12 @@
 /**
  * @fileOverview This flow analyzes a leaf image for diseases.
  *
- * - analyzeLeaf - A function that takes an image and returns a disease analysis.
+ * - analyzeLeaf - a function that takes an image and returns a disease analysis.
  * - AnalyzeLeafInput - The input type for the analyzeLeaf function.
  * - AnalyzeLeafOutput - The return type for the analyzeLeaf function.
  */
 
-import { configureGenkit } from '@/ai/genkit';
+import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 
 const AnalyzeLeafInputSchema = z.object({
@@ -40,14 +40,12 @@ const AnalyzeLeafOutputSchema = z.object({
 });
 export type AnalyzeLeafOutput = z.infer<typeof AnalyzeLeafOutputSchema>;
 
-export async function analyzeLeaf(input: AnalyzeLeafInput): Promise<AnalyzeLeafOutput> {
-  const ai = configureGenkit();
-
-  const prompt = ai.definePrompt({
-    name: 'analyzeLeafPrompt',
-    input: { schema: AnalyzeLeafInputSchema },
-    output: { schema: AnalyzeLeafOutputSchema },
-    prompt: `You are a world-renowned botanist and plant pathologist. Your task is to analyze an image of a plant leaf.
+const prompt = ai.definePrompt({
+  name: 'analyzeLeafPrompt',
+  input: { schema: AnalyzeLeafInputSchema },
+  output: { schema: AnalyzeLeafOutputSchema },
+  model: 'googleai/gemini-1.5-flash',
+  prompt: `You are a world-renowned botanist and plant pathologist. Your task is to analyze an image of a plant leaf.
 
   1.  First, determine if the image actually contains a plant leaf. If not, set 'isPlant' to false and provide reasonable defaults for other fields, stating that no plant was detected.
   2.  If it is a plant, identify the plant species.
@@ -58,19 +56,20 @@ export async function analyzeLeaf(input: AnalyzeLeafInput): Promise<AnalyzeLeafO
   7.  Provide a list of treatment recommendations. If healthy, provide general care tips for the plant.
 
   Image to analyze: {{media url=photoDataUri}}`,
-  });
+});
 
-  const analyzeLeafFlow = ai.defineFlow(
-    {
-      name: 'analyzeLeafFlow',
-      inputSchema: AnalyzeLeafInputSchema,
-      outputSchema: AnalyzeLeafOutputSchema,
-    },
-    async (input) => {
-      const { output } = await prompt(input);
-      return output!;
-    }
-  );
+const analyzeLeafFlow = ai.defineFlow(
+  {
+    name: 'analyzeLeafFlow',
+    inputSchema: AnalyzeLeafInputSchema,
+    outputSchema: AnalyzeLeafOutputSchema,
+  },
+  async (input) => {
+    const { output } = await prompt(input);
+    return output!;
+  }
+);
 
+export async function analyzeLeaf(input: AnalyzeLeafInput): Promise<AnalyzeLeafOutput> {
   return analyzeLeafFlow(input);
 }
