@@ -14,12 +14,17 @@ import {
   ChartContainer
 } from '@/components/ui/chart';
 import type { ChartConfig } from '@/components/ui/chart';
+import { useInView } from '@/hooks/use-in-view';
+import { cn } from '@/lib/utils';
+
 
 interface AnalysisChartProps {
   result: AnalysisResult;
 }
 
 export function AnalysisChart({ result }: AnalysisChartProps) {
+  const [ref, isInView] = useInView({ triggerOnce: true });
+
   const chartData = [
     {
       name: 'Scores',
@@ -40,7 +45,13 @@ export function AnalysisChart({ result }: AnalysisChartProps) {
   } satisfies ChartConfig;
 
   return (
-    <Card className="animate-in fade-in-50 duration-500">
+    <Card 
+        ref={ref as React.Ref<HTMLDivElement>}
+        className={cn(
+            "opacity-0 translate-y-10 transition-all duration-[3000ms] ease-out",
+            isInView && "opacity-100 translate-y-0"
+        )}
+    >
       <CardHeader>
         <CardTitle>Analysis Metrics</CardTitle>
         <CardDescription>
