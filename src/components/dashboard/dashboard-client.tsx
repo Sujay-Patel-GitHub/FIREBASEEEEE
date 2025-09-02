@@ -132,10 +132,10 @@ export default function DashboardClient() {
   const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
     let file = event.target.files?.[0];
     if (!file) return;
-
+  
     // Check for HEIC format and convert if necessary
     const isHeic = file.type === 'image/heic' || file.type === 'image/heif' || file.name.toLowerCase().endsWith('.heic');
-
+    
     if (isHeic) {
       toast({
         title: 'Converting HEIC Image',
@@ -157,7 +157,7 @@ export default function DashboardClient() {
         return;
       }
     }
-
+  
     if (!file.type.startsWith('image/')) {
       toast({
         variant: 'destructive',
@@ -166,7 +166,7 @@ export default function DashboardClient() {
       });
       return;
     }
-
+  
     const reader = new FileReader();
     reader.onloadend = () => {
       const dataUri = reader.result as string;
@@ -175,7 +175,7 @@ export default function DashboardClient() {
     };
     reader.readAsDataURL(file);
   };
-
+  
   const saveAnalysis = async (result: Omit<AnalysisResultType, 'id' | 'userId'>) => {
     if (!userId) return;
     try {
@@ -223,16 +223,16 @@ export default function DashboardClient() {
           analyzedAt: serverTimestamp(), // Use server timestamp
           ...analysisData,
         };
-
+        
         // Don't set state with server timestamp, convert to Date for immediate use
-        setAnalysisResult({
-            ...newResult,
-            id: new Date().toISOString(),
+        setAnalysisResult({ 
+            ...newResult, 
+            id: new Date().toISOString(), 
             userId: userId!,
-            analyzedAt: new Date()
+            analyzedAt: new Date() 
         });
         setAnalysisCount(prev => prev + 1);
-
+        
         if (userId) {
             await saveAnalysis(newResult);
         }

@@ -8,8 +8,8 @@ export function Logo(props: ComponentProps<"div">) {
       className={cn("relative", props.className)}
       {...props}
     >
-      <Image
-        src="https://i.ibb.co/BvzgcGf/Green-Simple-Nature-Beauty-Care-Initials-Logo.png"
+      <Image 
+        src="https://i.ibb.co/BvzgcGf/Green-Simple-Nature-Beauty-Care-Initials-Logo.png" 
         alt="HARITRAKSHAK Logo"
         width={200}
         height={200}

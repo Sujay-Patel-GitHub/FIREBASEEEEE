@@ -27,7 +27,7 @@ export default function AnalysisHistoryPage() {
 
             try {
                 const q = query(
-                    collection(db, 'analyses'),
+                    collection(db, 'analyses'), 
                     where('userId', '==', userId),
                     orderBy('analyzedAt', 'desc')
                 );
@@ -73,7 +73,7 @@ export default function AnalysisHistoryPage() {
             </div>
         );
     }
-
+    
     return (
         <div className="container mx-auto py-8">
             <h1 className="text-3xl font-bold mb-6">Analysis History</h1>

@@ -70,7 +70,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     return () => unsubscribe();
   }, []); // This effect should run only once
-
+  
   useEffect(() => {
     // This effect handles redirection logic.
     if (!loading) {
@@ -79,7 +79,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       if (!isAuthenticated && !isAuthPage) {
         router.push('/auth/signin');
-      }
+      } 
       // Only redirect away from signin page if they are a logged-in user, not a guest
       else if (user && isAuthPage) {
         router.push('/');
@@ -113,7 +113,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUserId(guestId);
     setUser(null); // Ensure no stale user object
   };
-
+  
   const value = { user, loading, signOut, isGuest, userId, setGuest };
 
   if (loading) {
@@ -129,7 +129,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   // If a redirect is needed, the effect will handle it. We return null to avoid rendering children during the redirect flicker.
   if (!loading && !user && !isGuest && pathname !== '/auth/signin') {
-    return null;
+    return null; 
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

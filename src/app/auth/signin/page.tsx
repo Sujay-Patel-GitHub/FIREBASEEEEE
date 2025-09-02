@@ -6,6 +6,7 @@ import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/logo';
+import { useAuth } from '@/context/auth-context';
 
 const GoogleIcon = () => (
   <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
@@ -30,6 +31,7 @@ const GoogleIcon = () => (
 
 export default function SignInPage() {
   const router = useRouter();
+  const { setGuest } = useAuth();
 
   const signInWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
@@ -45,7 +47,7 @@ export default function SignInPage() {
   };
 
   const continueAsGuest = () => {
-    localStorage.setItem('isGuest', 'true');
+    setGuest(); // Use the context function to handle guest logic
     router.push('/');
   };
 
@@ -55,7 +57,7 @@ export default function SignInPage() {
         <div className="flex justify-center">
             <Logo className="w-48 h-48" />
         </div>
-
+        
         <div className="text-center">
           <h1 className="text-3xl font-bold text-gray-900">
             Welcome to HARITRAKSHAK
@@ -74,7 +76,7 @@ export default function SignInPage() {
             <GoogleIcon />
             <span className="ml-3">Sign in with Google</span>
           </Button>
-
+          
           <div className="flex items-center text-xs text-gray-400 uppercase">
               <div className="flex-1 border-t border-gray-300"></div>
               <span className="px-4">Or</span>
