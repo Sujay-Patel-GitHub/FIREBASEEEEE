@@ -5,7 +5,7 @@ import { useState, useRef, ChangeEvent, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { UploadCloud, X, Leaf, Microscope, Sparkles } from 'lucide-react';
+import { UploadCloud, X, Leaf, Microscope } from 'lucide-react';
 import type { AnalysisResult as AnalysisResultType } from '@/types';
 import { AnalysisResults } from './analysis-results';
 import { AnalysisHistoryPreview } from './analysis-history-preview';
@@ -22,7 +22,6 @@ import { db } from '@/lib/firebase';
 import { collection, addDoc, serverTimestamp, query, where, getDocs, orderBy, limit,getCountFromServer } from 'firebase/firestore';
 import heic2any from 'heic2any';
 import { Chatbot } from './chatbot';
-import { Logo } from '../logo';
 
 export default function DashboardClient() {
   const { user, userId, isGuest, loading } = useAuth();
@@ -56,10 +55,9 @@ export default function DashboardClient() {
   };
 
   useEffect(() => {
-    const guestId = sessionStorage.getItem('guestId');
     if (isInitialMount.current) {
       isInitialMount.current = false;
-    } else if (!guestId) {
+    } else {
       handleReset();
     }
   }, [userId]);
@@ -405,28 +403,29 @@ export default function DashboardClient() {
 
   return (
     <div className="space-y-6 animate-fade-in-up">
-      <div className="animated-border-box md:hidden">
-        <div className="w-full rounded-lg bg-card p-8 md:p-12 text-center shadow-sm border">
-          <div className="max-w-md mx-auto">
-            <Logo className="w-32 h-32 md:w-40 md:h-40 mx-auto" />
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mt-6">
-              Welcome to HARITRAKSHAK
-            </h1>
-            <p className="mt-3 text-base md:text-lg text-gray-600">
-              Intelligent insights for a greener tomorrow.
-            </p>
-          </div>
+      <div className="flex flex-col md:flex-row justify-between items-start gap-4">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+          <p className="text-muted-foreground">
+            {isGuest ? "Welcome, Guest!" : `Welcome, ${user?.displayName || 'User'}!`} Get an overview of your plant health.
+          </p>
+        </div>
+        <div className="flex items-center gap-4">
+          { (uploadedImage || isAnalyzing) && 
+            <Button variant="outline" onClick={handleReset}><X className="mr-2 h-4 w-4"/> Clear Analysis</Button>
+          }
+          <Button onClick={handleUploadClick} disabled={isAnalyzing}>
+            <Leaf className="mr-2 h-4 w-4" /> Analyze Plant
+          </Button>
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            className="hidden"
+            accept="image/*,.heic,.heif"
+          />
         </div>
       </div>
-      
-      <input
-        type="file"
-        ref={fileInputRef}
-        onChange={handleFileChange}
-        className="hidden"
-        accept="image/*,.heic,.heif"
-      />
-
       
       {analysisResult && (
         <div className="grid gap-6 md:grid-cols-2 animate-in fade-in-50 duration-500">
@@ -515,7 +514,7 @@ export default function DashboardClient() {
                   </div>
                 </>
              ) : (
-                !isAnalyzing && !error && !uploadedImage && (
+                !isAnalyzing && !error && (
                   <Card className="flex h-full items-center justify-center">
                     <CardContent className="text-center text-muted-foreground p-8">
                         <Microscope className="mx-auto h-12 w-12" />

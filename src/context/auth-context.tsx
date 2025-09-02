@@ -3,7 +3,7 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { onAuthStateChanged, User, signOut as firebaseSignout } from 'firebase/auth';
+import { onAuthStateChanged, User, signOut as firebaseSignOut } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { usePathname, useRouter } from 'next/navigation';
 import { Leaf } from 'lucide-react';
@@ -40,24 +40,30 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const pathname = usePathname();
 
   useEffect(() => {
-    // Attempt to retrieve guest status from sessionStorage
-    const guestId = sessionStorage.getItem('guestId');
-
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
-        // If a user is logged in, they are not a guest.
-        sessionStorage.removeItem('guestId');
+        // If user logs in, they are no longer a guest
+        localStorage.removeItem('isGuest');
+        localStorage.removeItem('guestId'); // Clear guest ID on login
         setIsGuestState(false);
         setUserId(currentUser.uid);
-      } else if (guestId) {
-        // If there's no user but a guestId exists in session, they are a guest.
-        setIsGuestState(true);
-        setUserId(guestId);
       } else {
-        // Not logged in and not a guest.
-        setIsGuestState(false);
-        setUserId(null);
+        // Check for guest status only if there's no active user
+        const guestStatus = localStorage.getItem('isGuest') === 'true';
+        if (guestStatus) {
+            setIsGuestState(true);
+            let guestId = localStorage.getItem('guestId');
+            if (!guestId) {
+                guestId = generateGuestId();
+                localStorage.setItem('guestId', guestId);
+            }
+            setUserId(guestId);
+        } else {
+            // Not a logged-in user and not a guest
+            setIsGuestState(false);
+            setUserId(null);
+        }
       }
       setLoading(false);
     });
@@ -83,9 +89,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signOut = async () => {
     try {
-      await firebaseSignout(auth);
-      // Clear all auth state
-      sessionStorage.removeItem('guestId');
+      await firebaseSignOut(auth);
+      // Clear all local auth state and application state
+      localStorage.removeItem('isGuest');
+      localStorage.removeItem('guestId');
       setIsGuestState(false);
       setUserId(null);
       setUser(null);
@@ -96,8 +103,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const setGuest = () => {
-    const guestId = generateGuestId();
-    sessionStorage.setItem('guestId', guestId); // Store guest ID in sessionStorage
+    localStorage.setItem('isGuest', 'true');
+    let guestId = localStorage.getItem('guestId');
+    if (!guestId) {
+        guestId = generateGuestId();
+        localStorage.setItem('guestId', guestId);
+    }
     setIsGuestState(true);
     setUserId(guestId);
     setUser(null); // Ensure no stale user object

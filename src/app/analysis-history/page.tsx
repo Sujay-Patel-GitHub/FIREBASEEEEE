@@ -1,4 +1,3 @@
-
 'use client';
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -14,16 +13,14 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
 export default function AnalysisHistoryPage() {
-    const { userId, isGuest, loading: authLoading } = useAuth();
+    const { userId } = useAuth();
     const [history, setHistory] = useState<AnalysisResult[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchHistory = async () => {
-            if (authLoading) return; // Wait for authentication to resolve
-
-            if (isGuest || !userId) {
+            if (!userId) {
                 setLoading(false);
                 return;
             }
@@ -53,17 +50,17 @@ export default function AnalysisHistoryPage() {
         };
 
         fetchHistory();
-    }, [userId, authLoading, isGuest]);
+    }, [userId]);
 
-    if (loading || authLoading) {
+    if (loading) {
         return (
              <div className="container mx-auto py-8">
                 <h1 className="text-3xl font-bold mb-6">Analysis History</h1>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                     {Array.from({ length: 3 }).map((_, i) => (
                         <Card key={i}>
                             <CardHeader>
-                                <Skeleton className="aspect-video w-full rounded-md" />
+                                <Skeleton className="h-40 w-full rounded-md" />
                             </CardHeader>
                             <CardContent className="space-y-2">
                                 <Skeleton className="h-5 w-3/4" />
@@ -99,20 +96,14 @@ export default function AnalysisHistoryPage() {
                  <Card>
                     <CardHeader>
                         <CardTitle>No History Found</CardTitle>
-                        <CardDescription>
-                          {isGuest ? "Your analysis history is not saved in guest mode." : "You have not performed any analyses yet."}
-                        </CardDescription>
+                        <CardDescription>You have not performed any analyses yet.</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <div className="text-center text-muted-foreground py-12">
                             <History className="mx-auto h-12 w-12" />
-                            <p className="mt-4">
-                              {isGuest ? "Sign in to save and view your analysis history." : "Upload a plant leaf on the dashboard to start your first analysis."}
-                            </p>
+                            <p className="mt-4">Upload a plant leaf on the dashboard to start your first analysis.</p>
                              <Link href="/">
-                               <Button variant="outline" className="mt-4">
-                                {isGuest ? "Sign In" : "Go to Dashboard"}
-                               </Button>
+                               <Button variant="outline" className="mt-4">Go to Dashboard</Button>
                             </Link>
                         </div>
                     </CardContent>
@@ -120,32 +111,30 @@ export default function AnalysisHistoryPage() {
             )}
 
             {!error && history.length > 0 && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                     {history.map(item => (
-                        <Link href={`/analysis-history/${item.id}`} key={item.id} className="group">
-                            <Card className="overflow-hidden flex flex-col h-full transition-all group-hover:shadow-lg group-hover:border-primary">
-                                <div className="relative aspect-video">
-                                    <Image src={item.imageUrl} alt={`Analysis of ${item.plantSpecies}`} layout="fill" objectFit="cover" />
+                        <Card key={item.id} className="overflow-hidden flex flex-col">
+                            <div className="relative aspect-video">
+                                <Image src={item.imageUrl} alt={`Analysis of ${item.plantSpecies}`} layout="fill" objectFit="cover" />
+                            </div>
+                            <CardHeader>
+                                <CardTitle className="truncate">{item.plantSpecies}</CardTitle>
+                                <CardDescription>
+                                    Analyzed on {new Date(item.analyzedAt).toLocaleDateString()}
+                                </CardDescription>
+                            </CardHeader>
+                             <CardContent className="flex-grow">
+                                <div className="flex items-center gap-2">
+                                    <Leaf className="h-5 w-5 text-primary" />
+                                    <p className="font-semibold">{item.diseaseDetection.name}</p>
                                 </div>
-                                <CardHeader>
-                                    <CardTitle className="truncate">{item.plantSpecies}</CardTitle>
-                                    <CardDescription>
-                                        Analyzed on {new Date(item.analyzedAt).toLocaleDateString()}
-                                    </CardDescription>
-                                </CardHeader>
-                                 <CardContent className="flex-grow">
-                                    <div className="flex items-center gap-2">
-                                        <Leaf className="h-5 w-5 text-primary" />
-                                        <p className="font-semibold">{item.diseaseDetection.name}</p>
-                                    </div>
-                                </CardContent>
-                                <CardFooter>
-                                     <Badge variant={item.severity.level === 'High' ? 'destructive' : item.severity.level === 'Medium' ? 'secondary' : 'default'}>
-                                        Severity: {item.severity.level}
-                                     </Badge>
-                                </CardFooter>
-                            </Card>
-                        </Link>
+                            </CardContent>
+                            <CardFooter>
+                                 <Badge variant={item.severity.level === 'High' ? 'destructive' : item.severity.level === 'Medium' ? 'secondary' : 'default'}>
+                                    Severity: {item.severity.level}
+                                 </Badge>
+                            </CardFooter>
+                        </Card>
                     ))}
                 </div>
             )}

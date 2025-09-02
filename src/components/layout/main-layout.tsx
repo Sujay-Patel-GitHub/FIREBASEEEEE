@@ -1,7 +1,6 @@
 
 'use client';
 import type { ReactNode } from 'react';
-import * as React from 'react';
 import {
   SidebarProvider,
   Sidebar,
@@ -28,17 +27,6 @@ export function MainLayout({ children }: { children: ReactNode }) {
     return null;
   }
   
-  // This is a bit of a workaround to pass props from page to layout
-  // A cleaner way might involve a separate context
-  let onAnalyzeClick: (() => void) | undefined = undefined;
-  let isAnalyzing: boolean | undefined = undefined;
-  if (pathname === '/' && React.isValidElement(children) && (children.props.children as React.ReactElement)?.type?.name === 'DashboardClient') {
-    const dashboardClient = children.props.children as React.ReactElement;
-    const { fileInputRef, isAnalyzing: analyzingState } = dashboardClient.props;
-    onAnalyzeClick = () => fileInputRef.current?.click();
-    isAnalyzing = analyzingState;
-  }
-  
   return (
     <SidebarProvider>
       <Sidebar>
@@ -46,7 +34,7 @@ export function MainLayout({ children }: { children: ReactNode }) {
       </Sidebar>
       <SidebarInset>
         <div className="flex flex-col min-h-screen">
-          <Header onAnalyzeClick={onAnalyzeClick} isAnalyzing={isAnalyzing} />
+          <Header />
           <main className="flex-1 p-4 lg:p-6">
             <div className="container mx-auto">
               {children}
