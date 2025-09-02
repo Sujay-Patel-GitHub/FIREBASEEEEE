@@ -6,7 +6,6 @@ import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/logo';
-import { useAuth } from '@/context/auth-context';
 
 const GoogleIcon = () => (
   <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
@@ -31,7 +30,6 @@ const GoogleIcon = () => (
 
 export default function SignInPage() {
   const router = useRouter();
-  const { setGuest } = useAuth();
 
   const signInWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
@@ -47,7 +45,7 @@ export default function SignInPage() {
   };
 
   const continueAsGuest = () => {
-    setGuest(); // Use the context function to handle guest logic
+    localStorage.setItem('isGuest', 'true');
     router.push('/');
   };
 
