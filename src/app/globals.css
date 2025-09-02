@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 body {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Inter', sans-serif;
 }
 
 @layer base {
@@ -86,3 +86,27 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  .neural-network-bg {
+    position: absolute;
+    inset: 0;
+    background-image:
+      radial-gradient(circle at 15% 25%, hsl(140, 50%, 20%), transparent 20%),
+      radial-gradient(circle at 85% 75%, hsl(160, 50%, 30%), transparent 20%);
+    background-color: #0D1B2A;
+    animation: pulse-bg 20s infinite alternate;
+  }
+}
+
+@keyframes pulse-bg {
+	0% {
+		opacity: 0.2;
+    transform: scale(1);
+	}
+	100% {
+		opacity: 0.5;
+    transform: scale(1.1);
+	}
+}
+

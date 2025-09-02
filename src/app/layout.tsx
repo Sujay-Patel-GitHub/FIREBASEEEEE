@@ -5,7 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from '@/context/auth-context';
 
 export const metadata: Metadata = {
-  title: 'LeafWise AI',
+  title: 'HARITRAKSHAK',
   description: 'AI-Powered Leaf Disease Detection',
 };
 

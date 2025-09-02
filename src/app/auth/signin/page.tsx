@@ -1,17 +1,15 @@
 
-// src/app/auth/signin/page.tsx
 'use client';
 
 import { auth } from '@/lib/firebase';
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Leaf } from 'lucide-react';
-import { Separator } from '@/components/ui/separator';
+import Image from 'next/image';
 
 const GoogleIcon = () => (
-  <svg className="h-5 w-5" viewBox="0 0 24 24">
+  <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
     <path
       d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
       fill="#4285F4"
@@ -34,16 +32,12 @@ const GoogleIcon = () => (
 export default function SignInPage() {
   const router = useRouter();
 
-
   const signInWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
     try {
       await signInWithPopup(auth, provider);
-      // Use router.push for a client-side navigation
       router.push('/');
     } catch (error: any) {
-      // The 'auth/popup-closed-by-user' error is expected if the user closes the popup.
-      // We can safely ignore it and don't need to show an error message.
       if (error.code !== 'auth/popup-closed-by-user') {
         console.error("Error signing in with Google: ", error);
       }
@@ -52,43 +46,67 @@ export default function SignInPage() {
 
   const continueAsGuest = () => {
     localStorage.setItem('isGuest', 'true');
-    // Use router.push to navigate client-side, which is faster
-    // and avoids a full page reload, allowing the AuthContext to update smoothly.
     router.push('/');
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900 p-4">
-      <div className="w-full max-w-md">
-        <Card className="shadow-lg">
-          <CardHeader className="text-center">
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 mb-4">
-                <Leaf className="h-8 w-8 text-primary" />
+    <div className="relative min-h-screen w-full bg-[#0D1B2A] text-white">
+      <div className="absolute inset-0 z-0 opacity-20">
+        {/* You can replace this with a more dynamic background component if needed */}
+        <div className="neural-network-bg"></div>
+      </div>
+      <div className="relative z-10 grid min-h-screen grid-cols-1 lg:grid-cols-2">
+        <div className="hidden lg:flex flex-col items-center justify-center p-12">
+           <Image
+                src="https://picsum.photos/800/1200"
+                alt="Lush green leaves"
+                width={800}
+                height={1200}
+                className="rounded-2xl object-cover h-full w-full shadow-2xl"
+                data-ai-hint="leaf plant"
+            />
+        </div>
+        <div className="flex flex-col items-center justify-center p-8">
+          <div className="w-full max-w-sm">
+            <div className="text-center lg:text-left mb-10">
+              <div className="inline-flex items-center gap-3 mb-4">
+                <Leaf className="h-8 w-8 text-[#A7F3D0]" />
+                <h1 className="text-3xl font-bold tracking-tighter text-white">
+                  HARITRAKSHAK
+                </h1>
+              </div>
+              <p className="text-lg text-gray-300">
+                Intelligent insights for a greener tomorrow.
+              </p>
             </div>
-            <CardTitle className="text-2xl font-bold">Welcome to LeafWise AI</CardTitle>
-            <CardDescription>Sign in to save your analysis history</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Button
-              onClick={signInWithGoogle}
-              className="w-full"
-            >
-              <GoogleIcon />
-              <span className="ml-2">Sign in with Google</span>
-            </Button>
-            <div className="relative">
-              <Separator />
-              <span className="absolute left-1/2 -translate-x-1/2 top-[-10px] bg-card px-2 text-sm text-muted-foreground">OR</span>
+
+            <div className="space-y-4">
+              <Button
+                onClick={signInWithGoogle}
+                className="w-full h-12 text-base font-semibold bg-white text-gray-800 hover:bg-gray-200"
+                size="lg"
+              >
+                <GoogleIcon />
+                <span className="ml-3">Sign in with Google</span>
+              </Button>
+
+              <div className="flex items-center text-xs text-gray-400 uppercase">
+                  <div className="flex-1 border-t border-gray-600"></div>
+                  <span className="px-4">Or</span>
+                  <div className="flex-1 border-t border-gray-600"></div>
+              </div>
+
+              <Button
+                onClick={continueAsGuest}
+                className="w-full h-12 text-base font-semibold bg-gray-700 text-white hover:bg-gray-600"
+                variant="secondary"
+                size="lg"
+              >
+                Continue as Guest
+              </Button>
             </div>
-            <Button
-              onClick={continueAsGuest}
-              className="w-full"
-              variant="secondary"
-            >
-              Continue as Guest
-            </Button>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </div>
   );
