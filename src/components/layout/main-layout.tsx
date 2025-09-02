@@ -35,7 +35,11 @@ export function MainLayout({ children }: { children: ReactNode }) {
       <SidebarInset>
         <div className="flex flex-col min-h-screen">
           <Header />
-          <main className="flex-1 p-4 lg:p-6">{children}</main>
+          <main className="flex-1 p-4 lg:p-6">
+            <div className="container mx-auto">
+              {children}
+            </div>
+          </main>
         </div>
       </SidebarInset>
     </SidebarProvider>

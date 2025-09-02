@@ -1,7 +1,6 @@
 
 'use client';
 
-import type { AnalysisResult } from '@/types';
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import {
   Card,
@@ -15,36 +14,37 @@ import {
 } from '@/components/ui/chart';
 import type { ChartConfig } from '@/components/ui/chart';
 
-interface AnalysisChartProps {
-  result: AnalysisResult;
+interface FilterAnalysisChartProps {
+  edgeScore: number;
+  thermogramScore: number;
 }
 
-export function AnalysisChart({ result }: AnalysisChartProps) {
+export function FilterAnalysisChart({ edgeScore, thermogramScore }: FilterAnalysisChartProps) {
   const chartData = [
     {
       name: 'Scores',
-      severity: result.severity.score,
-      accuracy: result.confidenceScore,
+      edge: edgeScore,
+      thermogram: thermogramScore,
     },
   ];
 
   const chartConfig = {
-    severity: {
-      label: 'Severity Score',
-      color: 'hsl(var(--destructive))',
+    edge: {
+      label: 'Edge Score',
+      color: 'hsl(var(--chart-3))',
     },
-    accuracy: {
-        label: 'Detection Accuracy',
-        color: 'hsl(var(--chart-2))',
+    thermogram: {
+        label: 'Thermogram Score',
+        color: 'hsl(var(--chart-4))',
     }
   } satisfies ChartConfig;
 
   return (
     <Card className="animate-in fade-in-50 duration-500">
       <CardHeader>
-        <CardTitle>Analysis Metrics</CardTitle>
+        <CardTitle>Filter Metrics</CardTitle>
         <CardDescription>
-          A visual breakdown of the analysis scores.
+          A visual breakdown of the client-side filter scores.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -58,7 +58,7 @@ export function AnalysisChart({ result }: AnalysisChartProps) {
                     axisLine={false}
                     tick={false}
                  />
-                <YAxis type="number" domain={[0, 100]} tickFormatter={(value) => `${value}%`} />
+                <YAxis type="number" domain={[0, 100]} tickFormatter={(value) => `${value.toFixed(0)}`} />
                 <Tooltip 
                     cursor={{fill: 'hsl(var(--muted))'}}
                     contentStyle={{
@@ -66,11 +66,11 @@ export function AnalysisChart({ result }: AnalysisChartProps) {
                         borderColor: 'hsl(var(--border))',
                         borderRadius: 'var(--radius)',
                     }}
-                    formatter={(value, name) => [`${(value as number).toFixed(1)}%`, chartConfig[name as keyof typeof chartConfig].label]}
+                    formatter={(value, name) => [`${(value as number).toFixed(1)}`, chartConfig[name as keyof typeof chartConfig].label]}
                 />
                 <Legend />
-                <Bar dataKey="severity" fill="var(--color-severity)" radius={4} barSize={32} />
-                <Bar dataKey="accuracy" fill="var(--color-accuracy)" radius={4} barSize={32} />
+                <Bar dataKey="edge" fill="var(--color-edge)" radius={4} barSize={32} />
+                <Bar dataKey="thermogram" fill="var(--color-thermogram)" radius={4} barSize={32} />
             </BarChart>
            </ResponsiveContainer>
         </ChartContainer>

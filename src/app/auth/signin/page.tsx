@@ -53,12 +53,12 @@ export default function SignInPage() {
 
   return (
     <div className="min-h-screen w-full bg-white text-gray-800 flex items-center justify-center p-4">
-      <div className="animated-border-box">
+      <div className="animated-border-box animate-fade-in-up">
         <div className="w-full max-w-sm p-8 space-y-8 animate-float bg-white">
           <div className="flex justify-center">
               <Logo className="w-48 h-48" />
           </div>
-
+          
           <div className="text-center">
             <h1 className="text-3xl font-bold text-gray-900">
               Welcome to HARITRAKSHAK
@@ -77,7 +77,7 @@ export default function SignInPage() {
               <GoogleIcon />
               <span className="ml-3">Sign in with Google</span>
             </Button>
-
+            
             <div className="flex items-center text-xs text-gray-400 uppercase">
                 <div className="flex-1 border-t border-gray-300"></div>
                 <span className="px-4">Or</span>

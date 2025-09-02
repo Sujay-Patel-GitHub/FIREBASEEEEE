@@ -30,6 +30,7 @@ const prompt = ai.definePrompt({
   name: 'summarizeDiseaseAnalysisPrompt',
   input: {schema: SummarizeDiseaseAnalysisInputSchema},
   output: {schema: SummarizeDiseaseAnalysisOutputSchema},
+  model: 'googleai/gemini-1.5-flash',
   prompt: `You are an AI assistant that summarizes disease analysis of plants.
 
   Summarize the following disease analysis into key insights and recommended actions. Be concise and clear.

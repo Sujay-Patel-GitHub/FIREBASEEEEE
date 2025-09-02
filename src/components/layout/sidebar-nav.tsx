@@ -1,3 +1,4 @@
+
 'use client';
 import {
   SidebarHeader,
@@ -20,6 +21,7 @@ import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/auth-context';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Button } from '../ui/button';
+import { Logo } from '../logo';
 
 const menuItems = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
@@ -43,15 +45,11 @@ export function SidebarNav() {
   return (
     <>
       <SidebarHeader className="p-4">
-        <div className="flex items-center gap-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-            <Leaf className="h-6 w-6" />
-          </div>
-          <div className="flex flex-col">
+        <div className="flex flex-col items-center gap-2">
+            <Logo className="w-24 h-24" />
             <h2 className="text-lg font-semibold tracking-tight text-foreground">
               HARITRAKSHAK
             </h2>
-          </div>
         </div>
       </SidebarHeader>
       <SidebarContent className="p-2">

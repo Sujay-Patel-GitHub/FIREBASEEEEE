@@ -5,6 +5,7 @@ export type AnalysisResult = {
   userId: string;
   imageUrl: string;
   analyzedAt: Date | Timestamp;
+  isPlant: boolean;
   plantSpecies: string;
   diseaseDetection: {
     name: string;

@@ -21,22 +21,32 @@ export type AnalyzeLeafInput = z.infer<typeof AnalyzeLeafInputSchema>;
 
 const AnalyzeLeafOutputSchema = z.object({
   isPlant: z.boolean().describe('Whether the image contains a plant or not.'),
-  plantSpecies: z.string().describe('The identified species of the plant.'),
+  plantSpecies: z.string().describe('The identified species of the plant. This must be a specific name, not a generic term like "plant".'),
   diseaseDetection: z.object({
-    name: z.string().describe('The name of the detected disease. Should be "Healthy" if no disease is detected.'),
+    name: z
+      .string()
+      .describe(
+        'The name of the detected disease. Should be "Healthy" if no disease is detected.'
+      ),
     description: z
       .string()
       .describe('A brief description of the detected disease.'),
   }),
   severity: z.object({
-    level: z.enum(['Low', 'Medium', 'High', 'N/A']).describe('The severity level of the disease. N/A if healthy.'),
-    score: z.number().describe('A numerical score for the severity from 0 to 100.'),
+    level: z
+      .enum(['Low', 'Medium', 'High', 'N/A'])
+      .describe('The severity level of the disease. N/A if healthy.'),
+    score: z
+      .number()
+      .describe('A numerical score for the severity from 0 to 100.'),
   }),
   confidenceScore: z
     .number()
     .describe('The confidence score (0-100) of the overall analysis.'),
   cause: z.string().describe('The probable cause of the disease.'),
-  treatment: z.array(z.string()).describe('A list of treatment recommendations.'),
+  treatment: z
+    .array(z.string())
+    .describe('A list of treatment recommendations.'),
 });
 export type AnalyzeLeafOutput = z.infer<typeof AnalyzeLeafOutputSchema>;
 
@@ -45,17 +55,19 @@ const prompt = ai.definePrompt({
   input: { schema: AnalyzeLeafInputSchema },
   output: { schema: AnalyzeLeafOutputSchema },
   model: 'googleai/gemini-1.5-flash',
-  prompt: `You are a world-renowned botanist and plant pathologist. Your task is to analyze an image of a plant leaf.
+  prompt: `You are a world-renowned botanist and plant pathologist. Your primary task is to analyze an image of a plant leaf and provide a detailed diagnosis.
 
-  1.  First, determine if the image actually contains a plant leaf. If not, set 'isPlant' to false and provide reasonable defaults for other fields, stating that no plant was detected.
-  2.  If it is a plant, identify the plant species.
-  3.  Identify any diseases present on the leaf. If the plant is healthy, the disease name should be 'Healthy'.
-  4.  Determine the severity of the disease (Low, Medium, High). If healthy, set severity to 'N/A' and score to 0.
-  5.  Provide a confidence score for your analysis.
-  6.  Describe the probable cause of the disease. If healthy, state that.
-  7.  Provide a list of treatment recommendations. If healthy, provide general care tips for the plant.
+  **Critical Analysis Steps:**
 
-  Image to analyze: {{media url=photoDataUri}}`,
+  1.  **Image Validation:** First, determine if the image contains a plant leaf. If not, you must set 'isPlant' to false and provide sensible defaults for all other fields, clearly stating that no plant was detected.
+  2.  **Species Identification (Priority):** If it is a plant, you **must** identify the specific plant species. It is crucial that you provide a specific common or Latin name. Do not use generic terms like "Plant". This is the most important step.
+  3.  **Disease Identification:** Identify any diseases present on the leaf. If the plant is healthy, the disease name must be 'Healthy'.
+  4.  **Severity Assessment:** Determine the severity of the disease (Low, Medium, High). If healthy, set severity to 'N/A' and score to 0.
+  5.  **Confidence Score:** Provide a confidence score (0-100) for your complete analysis.
+  6.  **Cause Analysis:** Describe the probable cause of the disease. If the leaf is healthy, state that.
+  7.  **Treatment Plan:** Provide a list of actionable treatment recommendations. If healthy, provide general care tips suitable for the identified plant species.
+
+  Begin your analysis now on the following image: {{media url=photoDataUri}}`,
 });
 
 const analyzeLeafFlow = ai.defineFlow(
@@ -70,6 +82,8 @@ const analyzeLeafFlow = ai.defineFlow(
   }
 );
 
-export async function analyzeLeaf(input: AnalyzeLeafInput): Promise<AnalyzeLeafOutput> {
+export async function analyzeLeaf(
+  input: AnalyzeLeafInput
+): Promise<AnalyzeLeafOutput> {
   return analyzeLeafFlow(input);
 }

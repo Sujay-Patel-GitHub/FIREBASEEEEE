@@ -2,7 +2,7 @@ import type { AnalysisResult } from '@/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { AlertCircle, Bot, FlaskConical, Stethoscope, Trees, Leaf } from 'lucide-react';
+import { AlertCircle, FlaskConical, Stethoscope, Trees, Leaf } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface AnalysisResultsProps {
@@ -67,26 +67,16 @@ export function AnalysisResults({ result }: AnalysisResultsProps) {
       <ResultCard icon={<Stethoscope className="h-6 w-6 text-primary" />} title="Disease Detection" description={result.diseaseDetection.name}>
         <p className="text-sm text-muted-foreground">{result.diseaseDetection.description}</p>
       </ResultCard>
-
+      
       <ResultCard icon={<AlertCircle className="h-6 w-6 text-primary" />} title="Severity Level">
         <SeverityIndicator level={result.severity.level} score={result.severity.score} />
-      </ResultCard>
-      
-      <ResultCard icon={<Bot className="h-6 w-6 text-primary" />} title="Confidence Score">
-         <div className="space-y-2">
-            <div className="flex justify-between items-baseline">
-                <span className="text-sm font-semibold text-foreground">AI Confidence</span>
-                <span className="text-sm font-medium text-muted-foreground">{result.confidenceScore}%</span>
-            </div>
-            <Progress value={result.confidenceScore} className="h-2" />
-        </div>
       </ResultCard>
 
       <ResultCard icon={<FlaskConical className="h-6 w-6 text-primary" />} title="Probable Cause">
         <p className="text-sm text-muted-foreground">{result.cause}</p>
       </ResultCard>
 
-      <ResultCard icon={<Leaf className="h-6 w-6 text-primary" />} title="Treatment Recommendations">
+      <ResultCard icon={<Leaf className="h-6 w-6 text-primary" />} title="Remedies">
         <ul className="space-y-2 text-sm text-muted-foreground list-disc pl-4">
             {result.treatment.map((rec, i) => <li key={i}>{rec}</li>)}
         </ul>
