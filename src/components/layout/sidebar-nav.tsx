@@ -49,7 +49,7 @@ export function SidebarNav() {
           </div>
           <div className="flex flex-col">
             <h2 className="text-lg font-semibold tracking-tight text-foreground">
-              LeafWise AI
+              HARITRAKSHAK
             </h2>
           </div>
         </div>
