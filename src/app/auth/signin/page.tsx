@@ -52,45 +52,47 @@ export default function SignInPage() {
   };
 
   return (
-    <div className="min-h-screen w-full bg-white text-gray-800 flex items-center justify-center">
-      <div className="w-full max-w-sm p-8 space-y-8 animate-float">
-        <div className="flex justify-center">
-            <Logo className="w-48 h-48" />
-        </div>
-        
-        <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900">
-            Welcome to HARITRAKSHAK
-          </h1>
-          <p className="mt-2 text-sm text-gray-600">
-             Intelligent insights for a greener tomorrow.
-          </p>
-        </div>
-
-        <div className="space-y-4">
-          <Button
-            onClick={signInWithGoogle}
-            className="w-full h-12 text-base font-semibold bg-white text-gray-800 hover:bg-gray-100 border border-gray-300 shadow-sm"
-            size="lg"
-          >
-            <GoogleIcon />
-            <span className="ml-3">Sign in with Google</span>
-          </Button>
-          
-          <div className="flex items-center text-xs text-gray-400 uppercase">
-              <div className="flex-1 border-t border-gray-300"></div>
-              <span className="px-4">Or</span>
-              <div className="flex-1 border-t border-gray-300"></div>
+    <div className="min-h-screen w-full bg-white text-gray-800 flex items-center justify-center p-4">
+      <div className="animated-border-box">
+        <div className="w-full max-w-sm p-8 space-y-8 animate-float bg-white">
+          <div className="flex justify-center">
+              <Logo className="w-48 h-48" />
           </div>
 
-          <Button
-            onClick={continueAsGuest}
-            className="w-full h-12 text-base font-semibold bg-gray-700 text-white hover:bg-gray-600"
-            variant="secondary"
-            size="lg"
-          >
-            Continue as Guest
-          </Button>
+          <div className="text-center">
+            <h1 className="text-3xl font-bold text-gray-900">
+              Welcome to HARITRAKSHAK
+            </h1>
+            <p className="mt-2 text-sm text-gray-600">
+               Intelligent insights for a greener tomorrow.
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            <Button
+              onClick={signInWithGoogle}
+              className="w-full h-12 text-base font-semibold bg-white text-gray-800 hover:bg-gray-100 border border-gray-300 shadow-sm"
+              size="lg"
+            >
+              <GoogleIcon />
+              <span className="ml-3">Sign in with Google</span>
+            </Button>
+
+            <div className="flex items-center text-xs text-gray-400 uppercase">
+                <div className="flex-1 border-t border-gray-300"></div>
+                <span className="px-4">Or</span>
+                <div className="flex-1 border-t border-gray-300"></div>
+            </div>
+
+            <Button
+              onClick={continueAsGuest}
+              className="w-full h-12 text-base font-semibold bg-gray-700 text-white hover:bg-gray-600"
+              variant="secondary"
+              size="lg"
+            >
+              Continue as Guest
+            </Button>
+          </div>
         </div>
       </div>
     </div>

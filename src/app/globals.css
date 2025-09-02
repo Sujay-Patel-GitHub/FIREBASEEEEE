@@ -91,6 +91,34 @@ body {
   .animate-float {
     animation: float 6s ease-in-out infinite;
   }
+  .animated-border-box {
+    position: relative;
+    border-radius: 0.75rem; /* 12px */
+    overflow: hidden;
+    padding: 1px;
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  }
+  .animated-border-box::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 0;
+    background: conic-gradient(
+      from var(--angle, 0deg),
+      hsl(var(--primary) / 0.2),
+      hsl(var(--primary) / 0.8),
+      hsl(var(--primary) / 0.2)
+    );
+    animation: rotate 4s linear infinite;
+  }
+  .animated-border-box > * {
+    position: relative;
+    z-index: 1;
+    border-radius: calc(0.75rem - 1px);
+  }
 }
 
 @keyframes float {
@@ -102,5 +130,14 @@ body {
   }
   100% {
     transform: translateY(0px);
+  }
+}
+
+@keyframes rotate {
+  from {
+    --angle: 0deg;
+  }
+  to {
+    --angle: 360deg;
   }
 }
