@@ -19,6 +19,7 @@ interface AuthContextType {
   signOut: () => Promise<void>;
   isGuest: boolean;
   userId: string | null; // Unified ID for both logged-in users and guests
+  setGuest: () => void;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -27,6 +28,7 @@ const AuthContext = createContext<AuthContextType>({
   signOut: async () => {},
   isGuest: false,
   userId: null,
+  setGuest: () => {},
 });
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
@@ -100,7 +102,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const value = { user, loading, signOut, isGuest, userId };
+  const setGuest = () => {
+    localStorage.setItem('isGuest', 'true');
+    let guestId = localStorage.getItem('guestId');
+    if (!guestId) {
+        guestId = generateGuestId();
+        localStorage.setItem('guestId', guestId);
+    }
+    setIsGuestState(true);
+    setUserId(guestId);
+    setUser(null); // Ensure no stale user object
+  };
+
+  const value = { user, loading, signOut, isGuest, userId, setGuest };
 
   if (loading) {
     return (
@@ -128,4 +142,3 @@ export const useAuth = () => {
   }
   return context;
 };
-
