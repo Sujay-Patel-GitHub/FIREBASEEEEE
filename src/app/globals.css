@@ -95,7 +95,7 @@ body {
     position: relative;
     border-radius: 0.75rem; /* 12px */
     overflow: hidden;
-    padding: 1px;
+    padding: 5px;
     box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
   }
   .animated-border-box::before {
@@ -108,23 +108,65 @@ body {
     z-index: 0;
     background: conic-gradient(
       from var(--angle, 0deg),
-      hsl(var(--primary) / 0.2),
-      hsl(var(--primary) / 0.8),
-      hsl(var(--primary) / 0.2)
+      hsl(var(--primary) / 0.4),
+      hsl(var(--primary)),
+      hsl(var(--primary) / 0.4)
     );
-    animation: rotate 4s linear infinite;
+    animation: rotate 8s linear infinite;
   }
   .animated-border-box > * {
     position: relative;
     z-index: 1;
-    border-radius: calc(0.75rem - 1px);
+    border-radius: calc(0.75rem - 5px);
+  }
+  .animated-button-border {
+    position: relative;
+    overflow: hidden;
+    border-radius: 0.5rem; /* Match button's rounded-md */
+    padding: 2px;
+  }
+  .animated-button-border::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 0;
+    background: conic-gradient(
+      from var(--angle, 0deg),
+      hsl(var(--primary) / 0.6),
+      hsl(var(--primary)),
+      hsl(var(--primary) / 0.6)
+    );
+    animation: rotate 6s linear infinite;
+  }
+  .animated-button-border > * {
+    position: relative;
+    z-index: 1;
+    border-radius: calc(0.5rem - 2px);
   }
    .animate-fade-in-up {
     animation: fadeInUp 1s ease-out forwards;
   }
   .animate-gradient-pan {
     background-size: 200% 200%;
-    animation: gradient-pan 5s ease infinite;
+    animation: gradient-pan 8s ease infinite;
+  }
+  .animated-top-border {
+    position: relative;
+    overflow: hidden;
+  }
+  .animated-top-border::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--chart-2)), hsl(var(--primary)));
+    background-size: 200% 100%;
+    animation: move-border 4s linear infinite;
   }
 }
 
@@ -170,4 +212,13 @@ body {
 	100% {
 		background-position: 0% 50%;
 	}
+}
+
+@keyframes move-border {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }

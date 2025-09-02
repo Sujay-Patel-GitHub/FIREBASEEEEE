@@ -15,13 +15,15 @@ import Image from "next/image";
 import { Progress } from "../ui/progress";
 
 export function AnalysisHistoryPreview() {
-    const { userId, isGuest } = useAuth();
+    const { userId, isGuest, loading: authLoading } = useAuth();
     const [history, setHistory] = useState<AnalysisResult[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchHistory = async () => {
-            if (!userId) {
+            if (authLoading) return; // Wait for authentication to resolve
+
+            if (isGuest || !userId) {
                 setLoading(false);
                 return;
             }
@@ -51,7 +53,7 @@ export function AnalysisHistoryPreview() {
         };
 
         fetchHistory();
-    }, [userId]);
+    }, [userId, isGuest, authLoading]);
 
     const renderSkeleton = () => (
         <div className="grid gap-4 grid-cols-2 md:grid-cols-3">
@@ -85,7 +87,7 @@ export function AnalysisHistoryPreview() {
                 </div>
             </CardHeader>
             <CardContent>
-                {loading ? (
+                {loading || authLoading ? (
                     renderSkeleton()
                 ) : isGuest ? (
                     <div className="text-center text-muted-foreground py-8">
@@ -103,10 +105,10 @@ export function AnalysisHistoryPreview() {
                 ) : (
                     <div className="grid gap-6 grid-cols-2 md:grid-cols-3">
                         {history.map(item => (
-                            <div key={item.id} className="space-y-3">
+                             <Link href={`/analysis-history/${item.id}`} key={item.id} className="space-y-3 group">
                                 <div className="overflow-hidden rounded-lg border">
                                     <div className="relative aspect-video">
-                                        <Image src={item.imageUrl} alt={`Analysis of ${item.plantSpecies}`} layout="fill" objectFit="cover" />
+                                        <Image src={item.imageUrl} alt={`Analysis of ${item.plantSpecies}`} layout="fill" objectFit="cover" className="transition-transform duration-300 group-hover:scale-105" />
                                     </div>
                                 </div>
                                 <div className="space-y-1">
@@ -122,7 +124,7 @@ export function AnalysisHistoryPreview() {
                                     </div>
                                     <Progress value={item.confidenceScore} className="h-2" />
                                 </div>
-                            </div>
+                            </Link>
                         ))}
                     </div>
                 )}
