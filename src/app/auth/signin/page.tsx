@@ -39,8 +39,8 @@ export default function SignInPage() {
     const provider = new GoogleAuthProvider();
     try {
       await signInWithPopup(auth, provider);
-      // Use a full page redirect to ensure the AuthProvider re-evaluates the user state
-      window.location.href = '/';
+      // Use router.push for a client-side navigation
+      router.push('/');
     } catch (error: any) {
       // The 'auth/popup-closed-by-user' error is expected if the user closes the popup.
       // We can safely ignore it and don't need to show an error message.
@@ -51,9 +51,10 @@ export default function SignInPage() {
   };
 
   const continueAsGuest = () => {
-    sessionStorage.setItem('isGuest', 'true');
-     // Use a full page redirect to ensure the AuthProvider re-evaluates the guest state
-    window.location.href = '/';
+    localStorage.setItem('isGuest', 'true');
+    // Use router.push to navigate client-side, which is faster
+    // and avoids a full page reload, allowing the AuthContext to update smoothly.
+    router.push('/');
   };
 
   return (

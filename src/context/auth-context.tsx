@@ -47,6 +47,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             localStorage.setItem('guestId', guestId);
         }
         setUserId(guestId);
+    } else {
+        setIsGuestState(false);
+        setUserId(null);
     }
 
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -57,29 +60,43 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         localStorage.removeItem('guestId'); // Clear guest ID on login
         setIsGuestState(false);
         setUserId(currentUser.uid);
+      } else if (!localStorage.getItem('isGuest')) {
+        // Only if not a guest, clear the user state
+        setIsGuestState(false);
+        setUserId(null);
       }
       setLoading(false);
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [pathname]); // Rerun on path change to catch client-side navigations
 
   useEffect(() => {
     // This effect handles redirection logic for protected routes.
     // It runs after the initial auth state has been determined.
-    if (!loading && !user && !isGuest && pathname !== '/auth/signin') {
-      router.push('/auth/signin');
+    if (!loading) {
+      const isAuthPage = pathname === '/auth/signin';
+      const isAuthenticated = !!user || isGuest;
+
+      if (!isAuthenticated && !isAuthPage) {
+        router.push('/auth/signin');
+      } else if (isAuthenticated && isAuthPage) {
+        router.push('/');
+      }
     }
   }, [loading, user, isGuest, pathname, router]);
 
   const signOut = async () => {
     try {
+      await firebaseSignOut(auth);
+      // Clear all local auth state
       localStorage.removeItem('isGuest');
       localStorage.removeItem('guestId');
       setIsGuestState(false);
       setUserId(null);
-      await firebaseSignOut(auth);
+      setUser(null);
       // The onAuthStateChanged listener and the useEffect above will handle the redirect.
+      router.push('/auth/signin');
     } catch (error) {
       console.error("Error signing out: ", error);
     }
