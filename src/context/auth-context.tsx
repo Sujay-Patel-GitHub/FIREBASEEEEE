@@ -72,15 +72,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, [pathname]); // Rerun on path change to catch client-side navigations
 
   useEffect(() => {
-    // This effect handles redirection logic for protected routes.
-    // It runs after the initial auth state has been determined.
+    // This effect handles redirection logic.
     if (!loading) {
       const isAuthPage = pathname === '/auth/signin';
       const isAuthenticated = !!user || isGuest;
 
+      // If the user is not authenticated and not on the sign-in page, redirect them.
       if (!isAuthenticated && !isAuthPage) {
         router.push('/auth/signin');
-      } else if (isAuthenticated && isAuthPage) {
+      }
+      // If the user is logged in (not a guest) and on the sign-in page, redirect them to the dashboard.
+      // A guest should be allowed to stay on the sign-in page.
+      else if (user && isAuthPage) {
         router.push('/');
       }
     }
