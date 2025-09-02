@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useRef, ChangeEvent, useEffect } from 'react';
@@ -17,6 +18,7 @@ import { Progress } from '@/components/ui/progress';
 import { useAuth } from '@/context/auth-context';
 import { db } from '@/lib/firebase';
 import { collection, addDoc, serverTimestamp, query, where, getDocs, orderBy, limit } from 'firebase/firestore';
+import heic2any from 'heic2any';
 
 const sobelEdgeDetection = (imageData: ImageData): ImageData => {
     const width = imageData.width;
@@ -129,28 +131,53 @@ export default function DashboardClient() {
     fetchHistory();
   }, [userId]);
 
-  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      if (!file.type.startsWith('image/')) {
+  const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
+    let file = event.target.files?.[0];
+    if (!file) return;
+  
+    // Check for HEIC format and convert if necessary
+    const isHeic = file.type === 'image/heic' || file.type === 'image/heif' || file.name.toLowerCase().endsWith('.heic');
+    
+    if (isHeic) {
+      toast({
+        title: 'Converting HEIC Image',
+        description: 'Please wait while your image is converted...',
+      });
+      try {
+        const convertedBlob = await heic2any({
+          blob: file,
+          toType: 'image/jpeg',
+          quality: 0.9,
+        });
+        file = new File([convertedBlob as Blob], file.name.replace(/\.heic$/i, '.jpg'), { type: 'image/jpeg' });
+      } catch (e) {
         toast({
           variant: 'destructive',
-          title: 'Invalid File Type',
-          description: 'Please upload an image file (e.g., JPG, PNG).',
+          title: 'Conversion Failed',
+          description: 'Could not convert the HEIC image. Please try another format.',
         });
         return;
       }
-
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const dataUri = reader.result as string;
-        setUploadedImage(dataUri);
-        handleAnalyze(dataUri);
-      };
-      reader.readAsDataURL(file);
     }
+  
+    if (!file.type.startsWith('image/')) {
+      toast({
+        variant: 'destructive',
+        title: 'Invalid File Type',
+        description: 'Please upload an image file (e.g., JPG, PNG).',
+      });
+      return;
+    }
+  
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const dataUri = reader.result as string;
+      setUploadedImage(dataUri);
+      handleAnalyze(dataUri);
+    };
+    reader.readAsDataURL(file);
   };
-
+  
   const saveAnalysis = async (result: Omit<AnalysisResultType, 'id' | 'userId'>) => {
     if (!userId) return;
     try {
@@ -198,16 +225,16 @@ export default function DashboardClient() {
           analyzedAt: serverTimestamp(), // Use server timestamp
           ...analysisData,
         };
-
+        
         // Don't set state with server timestamp, convert to Date for immediate use
-        setAnalysisResult({
-            ...newResult,
-            id: new Date().toISOString(),
+        setAnalysisResult({ 
+            ...newResult, 
+            id: new Date().toISOString(), 
             userId: userId!,
-            analyzedAt: new Date()
+            analyzedAt: new Date() 
         });
         setAnalysisCount(prev => prev + 1);
-
+        
         if (userId) {
             await saveAnalysis(newResult);
         }
@@ -249,7 +276,7 @@ export default function DashboardClient() {
       fileInputRef.current.value = '';
     }
   };
-
+  
   const AnalysisSkeleton = () => (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-4">
         {Array.from({ length: 6 }).map((_, index) => (
@@ -268,7 +295,7 @@ export default function DashboardClient() {
 
   const ImageDisplay = ({src, alt, title, isLoading}: {src: string | null, alt: string, title: string, isLoading?: boolean}) => (
     <div className="flex flex-col items-center gap-2">
-      <div
+      <div 
         className="aspect-video w-full rounded-lg border-2 border-dashed border-muted-foreground/30 flex items-center justify-center bg-muted/20 relative transition-all hover:border-primary/50"
       >
         {!src && !isLoading && (
@@ -304,7 +331,7 @@ export default function DashboardClient() {
           </p>
         </div>
         <div className="flex items-center gap-4">
-          { (uploadedImage || isAnalyzing) &&
+          { (uploadedImage || isAnalyzing) && 
             <Button variant="outline" onClick={handleReset}><X className="mr-2 h-4 w-4"/> Clear Analysis</Button>
           }
           <Button onClick={handleUploadClick} disabled={isAnalyzing}>
@@ -315,7 +342,7 @@ export default function DashboardClient() {
             ref={fileInputRef}
             onChange={handleFileChange}
             className="hidden"
-            accept="image/*"
+            accept="image/*,.heic,.heif"
           />
         </div>
       </div>
@@ -395,10 +422,12 @@ export default function DashboardClient() {
             </div>
         </CardContent>
       </Card>
-
+      
       {analysisResult && <AnalysisChart result={analysisResult} />}
 
       <AnalysisHistoryPreview />
     </div>
   );
 }
+
+    
