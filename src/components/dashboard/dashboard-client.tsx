@@ -93,7 +93,7 @@ const generateEdgeImage = async (dataUri: string): Promise<string> => {
 };
 
 export default function DashboardClient() {
-  const { user, isGuest } = useAuth();
+  const { user, userId, isGuest } = useAuth();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResultType | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -105,10 +105,10 @@ export default function DashboardClient() {
 
   useEffect(() => {
     const fetchHistory = async () => {
-      if (user) {
+      if (userId) {
         const q = query(
           collection(db, 'analyses'),
-          where('userId', '==', user.uid),
+          where('userId', '==', userId),
           orderBy('analyzedAt', 'desc'),
           limit(1)
         );
@@ -127,7 +127,7 @@ export default function DashboardClient() {
       }
     };
     fetchHistory();
-  }, [user]);
+  }, [userId]);
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -140,7 +140,7 @@ export default function DashboardClient() {
         });
         return;
       }
-      
+
       const reader = new FileReader();
       reader.onloadend = () => {
         const dataUri = reader.result as string;
@@ -150,13 +150,13 @@ export default function DashboardClient() {
       reader.readAsDataURL(file);
     }
   };
-  
-  const saveAnalysis = async (result: Omit<AnalysisResultType, 'id'>) => {
-    if (!user) return;
+
+  const saveAnalysis = async (result: Omit<AnalysisResultType, 'id' | 'userId'>) => {
+    if (!userId) return;
     try {
         await addDoc(collection(db, 'analyses'), {
             ...result,
-            userId: user.uid,
+            userId: userId,
         });
     } catch (e) {
         console.error("Error adding document: ", e);
@@ -193,24 +193,28 @@ export default function DashboardClient() {
         setAnalysisResult(null);
         setUploadedImage(dataUri);
       } else {
-        const newResult: AnalysisResultType = {
-          id: new Date().toISOString(),
+        const newResult: Omit<AnalysisResultType, 'id' | 'userId'> = {
           imageUrl: dataUri,
           analyzedAt: serverTimestamp(), // Use server timestamp
           ...analysisData,
         };
-        
+
         // Don't set state with server timestamp, convert to Date for immediate use
-        setAnalysisResult({ ...newResult, analyzedAt: new Date() });
+        setAnalysisResult({
+            ...newResult,
+            id: new Date().toISOString(),
+            userId: userId!,
+            analyzedAt: new Date()
+        });
         setAnalysisCount(prev => prev + 1);
-        
-        if (!isGuest) {
+
+        if (userId) {
             await saveAnalysis(newResult);
         }
 
         toast({
           title: "Analysis Complete",
-          description: isGuest ? "Sign in to save results." : "Results have been saved to your history.",
+          description: "Results have been saved to your history.",
         });
 
         const edgeDataUri = await generateEdgeImage(dataUri);
@@ -245,7 +249,7 @@ export default function DashboardClient() {
       fileInputRef.current.value = '';
     }
   };
-  
+
   const AnalysisSkeleton = () => (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-4">
         {Array.from({ length: 6 }).map((_, index) => (
@@ -264,7 +268,7 @@ export default function DashboardClient() {
 
   const ImageDisplay = ({src, alt, title, isLoading}: {src: string | null, alt: string, title: string, isLoading?: boolean}) => (
     <div className="flex flex-col items-center gap-2">
-      <div 
+      <div
         className="aspect-video w-full rounded-lg border-2 border-dashed border-muted-foreground/30 flex items-center justify-center bg-muted/20 relative transition-all hover:border-primary/50"
       >
         {!src && !isLoading && (
@@ -300,7 +304,7 @@ export default function DashboardClient() {
           </p>
         </div>
         <div className="flex items-center gap-4">
-          { (uploadedImage || isAnalyzing) && 
+          { (uploadedImage || isAnalyzing) &&
             <Button variant="outline" onClick={handleReset}><X className="mr-2 h-4 w-4"/> Clear Analysis</Button>
           }
           <Button onClick={handleUploadClick} disabled={isAnalyzing}>
@@ -391,11 +395,10 @@ export default function DashboardClient() {
             </div>
         </CardContent>
       </Card>
-      
+
       {analysisResult && <AnalysisChart result={analysisResult} />}
 
       <AnalysisHistoryPreview />
     </div>
   );
 }
-

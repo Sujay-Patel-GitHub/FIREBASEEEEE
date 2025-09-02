@@ -62,7 +62,7 @@ export function SidebarNav() {
                 asChild
                 isActive={pathname === item.href}
                 className="justify-start"
-                disabled={(item.href === '/analysis-history' || item.href === '/profile') && isGuest}
+                disabled={(item.href === '/profile') && isGuest}
               >
                 <Link href={item.href}>
                   <item.icon className="h-4 w-4" />
@@ -94,9 +94,9 @@ export function SidebarNav() {
               <AvatarFallback><UserIcon /></AvatarFallback>
             </Avatar>
              <p className="text-sm font-semibold">Guest Mode</p>
-             <p className="text-xs text-muted-foreground">Sign in to save your analysis history.</p>
+             <p className="text-xs text-muted-foreground">Your history is saved on this device.</p>
              <Link href="/auth/signin" className='w-full'>
-              <Button className="w-full" size="sm">Sign In</Button>
+              <Button className="w-full" size="sm">Sign In to Sync</Button>
              </Link>
           </div>
         ) : null}

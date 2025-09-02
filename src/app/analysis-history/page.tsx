@@ -13,22 +13,22 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
 export default function AnalysisHistoryPage() {
-    const { user, isGuest } = useAuth();
+    const { userId } = useAuth();
     const [history, setHistory] = useState<AnalysisResult[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchHistory = async () => {
-            if (!user) {
+            if (!userId) {
                 setLoading(false);
                 return;
             }
 
             try {
                 const q = query(
-                    collection(db, 'analyses'), 
-                    where('userId', '==', user.uid),
+                    collection(db, 'analyses'),
+                    where('userId', '==', userId),
                     orderBy('analyzedAt', 'desc')
                 );
                 const querySnapshot = await getDocs(q);
@@ -49,12 +49,8 @@ export default function AnalysisHistoryPage() {
             }
         };
 
-        if (!isGuest) {
-            fetchHistory();
-        } else {
-            setLoading(false);
-        }
-    }, [user, isGuest]);
+        fetchHistory();
+    }, [userId]);
 
     if (loading) {
         return (
@@ -74,29 +70,6 @@ export default function AnalysisHistoryPage() {
                         </Card>
                     ))}
                 </div>
-            </div>
-        );
-    }
-    
-    if (isGuest) {
-        return (
-            <div className="container mx-auto py-8">
-                <h1 className="text-3xl font-bold mb-6">Analysis History</h1>
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Sign In to View History</CardTitle>
-                        <CardDescription>Your analysis history is not saved while in guest mode.</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-center text-muted-foreground py-12">
-                            <History className="mx-auto h-12 w-12" />
-                            <p className="mt-4">Sign in to your account to save and view your past analyses.</p>
-                            <Link href="/auth/signin">
-                               <Button className="mt-4">Sign In</Button>
-                            </Link>
-                        </div>
-                    </CardContent>
-                </Card>
             </div>
         );
     }

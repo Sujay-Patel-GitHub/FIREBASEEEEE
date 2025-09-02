@@ -8,12 +8,17 @@ import { auth } from '@/lib/firebase';
 import { usePathname, useRouter } from 'next/navigation';
 import { Leaf } from 'lucide-react';
 
+// Function to generate a simple random ID for guests
+const generateGuestId = () => {
+    return 'guest_' + Math.random().toString(36).substring(2, 15);
+};
+
 interface AuthContextType {
   user: User | null;
   loading: boolean;
   signOut: () => Promise<void>;
   isGuest: boolean;
-  setIsGuest: (isGuest: boolean) => void;
+  userId: string | null; // Unified ID for both logged-in users and guests
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -21,36 +26,44 @@ const AuthContext = createContext<AuthContextType>({
   loading: true,
   signOut: async () => {},
   isGuest: false,
-  setIsGuest: () => {},
+  userId: null,
 });
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [isGuest, setIsGuestState] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
   const router = useRouter();
   const pathname = usePathname();
 
   useEffect(() => {
-    // Check for guest status in sessionStorage on initial load
-    const guestStatus = sessionStorage.getItem('isGuest') === 'true';
+    const guestStatus = localStorage.getItem('isGuest') === 'true';
     if (guestStatus) {
         setIsGuestState(true);
+        let guestId = localStorage.getItem('guestId');
+        if (!guestId) {
+            guestId = generateGuestId();
+            localStorage.setItem('guestId', guestId);
+        }
+        setUserId(guestId);
     }
 
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
         // If user logs in, they are no longer a guest
-        sessionStorage.removeItem('isGuest');
+        localStorage.removeItem('isGuest');
+        localStorage.removeItem('guestId'); // Clear guest ID on login
         setIsGuestState(false);
+        setUserId(currentUser.uid);
       }
       setLoading(false);
     });
 
     return () => unsubscribe();
   }, []);
-  
+
   useEffect(() => {
     // This effect handles redirection logic for protected routes.
     // It runs after the initial auth state has been determined.
@@ -59,23 +72,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [loading, user, isGuest, pathname, router]);
 
-  const setIsGuest = (isGuest: boolean) => {
-    sessionStorage.setItem('isGuest', 'true');
-    setIsGuestState(isGuest);
-  };
-
   const signOut = async () => {
     try {
-      sessionStorage.removeItem('isGuest');
+      localStorage.removeItem('isGuest');
+      localStorage.removeItem('guestId');
       setIsGuestState(false);
+      setUserId(null);
       await firebaseSignOut(auth);
       // The onAuthStateChanged listener and the useEffect above will handle the redirect.
     } catch (error) {
       console.error("Error signing out: ", error);
     }
   };
-  
-  const value = { user, loading, signOut, isGuest, setIsGuest };
+
+  const value = { user, loading, signOut, isGuest, userId };
 
   if (loading) {
     return (

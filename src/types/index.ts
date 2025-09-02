@@ -2,6 +2,7 @@ import type { Timestamp } from 'firebase/firestore';
 
 export type AnalysisResult = {
   id: string;
+  userId: string;
   imageUrl: string;
   analyzedAt: Date | Timestamp;
   plantSpecies: string;
