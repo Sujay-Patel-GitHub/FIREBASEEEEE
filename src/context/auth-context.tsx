@@ -3,7 +3,7 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { onAuthStateChanged, User, signOut as firebaseSignOut } from 'firebase/auth';
+import { onAuthStateChanged, User, signOut as firebaseSignout } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { usePathname, useRouter } from 'next/navigation';
 import { Leaf } from 'lucide-react';
@@ -43,34 +43,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
-        // If user logs in, they are no longer a guest
-        localStorage.removeItem('isGuest');
-        localStorage.removeItem('guestId'); // Clear guest ID on login
+        // If a user is logged in, they are not a guest.
         setIsGuestState(false);
         setUserId(currentUser.uid);
       } else {
-        // Check for guest status only if there's no active user
-        const guestStatus = localStorage.getItem('isGuest') === 'true';
-        if (guestStatus) {
-            setIsGuestState(true);
-            let guestId = localStorage.getItem('guestId');
-            if (!guestId) {
-                guestId = generateGuestId();
-                localStorage.setItem('guestId', guestId);
-            }
-            setUserId(guestId);
-        } else {
-            // Not a logged-in user and not a guest
-            setIsGuestState(false);
-            setUserId(null);
-        }
+        // When there is no user, we don't assume they are a guest.
+        // The user must explicitly choose to be a guest on the sign-in page.
+        setIsGuestState(false);
+        setUserId(null);
       }
       setLoading(false);
     });
 
     return () => unsubscribe();
   }, []); // This effect should run only once
-  
+
   useEffect(() => {
     // This effect handles redirection logic.
     if (!loading) {
@@ -79,7 +66,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       if (!isAuthenticated && !isAuthPage) {
         router.push('/auth/signin');
-      } 
+      }
       // Only redirect away from signin page if they are a logged-in user, not a guest
       else if (user && isAuthPage) {
         router.push('/');
@@ -89,10 +76,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signOut = async () => {
     try {
-      await firebaseSignOut(auth);
-      // Clear all local auth state and application state
-      localStorage.removeItem('isGuest');
-      localStorage.removeItem('guestId');
+      await firebaseSignout(auth);
+      // Clear all auth state
       setIsGuestState(false);
       setUserId(null);
       setUser(null);
@@ -103,12 +88,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const setGuest = () => {
-    localStorage.setItem('isGuest', 'true');
-    let guestId = localStorage.getItem('guestId');
-    if (!guestId) {
-        guestId = generateGuestId();
-        localStorage.setItem('guestId', guestId);
-    }
+    const guestId = generateGuestId();
     setIsGuestState(true);
     setUserId(guestId);
     setUser(null); // Ensure no stale user object
