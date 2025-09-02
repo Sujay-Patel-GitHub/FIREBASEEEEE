@@ -5,8 +5,7 @@ import { auth } from '@/lib/firebase';
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Leaf } from 'lucide-react';
-import Image from 'next/image';
+import { Logo } from '@/components/logo';
 
 const GoogleIcon = () => (
   <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
@@ -50,62 +49,45 @@ export default function SignInPage() {
   };
 
   return (
-    <div className="relative min-h-screen w-full bg-[#0D1B2A] text-white">
-      <div className="absolute inset-0 z-0 opacity-20">
-        {/* You can replace this with a more dynamic background component if needed */}
-        <div className="neural-network-bg"></div>
-      </div>
-      <div className="relative z-10 grid min-h-screen grid-cols-1 lg:grid-cols-2">
-        <div className="hidden lg:flex flex-col items-center justify-center p-12">
-           <Image
-                src="https://picsum.photos/800/1200"
-                alt="Lush green leaves"
-                width={800}
-                height={1200}
-                className="rounded-2xl object-cover h-full w-full shadow-2xl"
-                data-ai-hint="leaf plant"
-            />
+    <div className="min-h-screen w-full bg-white text-gray-800 flex items-center justify-center">
+      <div className="w-full max-w-sm p-8 space-y-8 animate-float">
+        <div className="flex justify-center">
+            <Logo className="w-48 h-48" />
         </div>
-        <div className="flex flex-col items-center justify-center p-8">
-          <div className="w-full max-w-sm">
-            <div className="text-center lg:text-left mb-10">
-              <div className="inline-flex items-center gap-3 mb-4">
-                <Leaf className="h-8 w-8 text-[#A7F3D0]" />
-                <h1 className="text-3xl font-bold tracking-tighter text-white">
-                  HARITRAKSHAK
-                </h1>
-              </div>
-              <p className="text-lg text-gray-300">
-                Intelligent insights for a greener tomorrow.
-              </p>
-            </div>
 
-            <div className="space-y-4">
-              <Button
-                onClick={signInWithGoogle}
-                className="w-full h-12 text-base font-semibold bg-white text-gray-800 hover:bg-gray-200"
-                size="lg"
-              >
-                <GoogleIcon />
-                <span className="ml-3">Sign in with Google</span>
-              </Button>
+        <div className="text-center">
+          <h1 className="text-3xl font-bold text-gray-900">
+            Welcome to HARITRAKSHAK
+          </h1>
+          <p className="mt-2 text-sm text-gray-600">
+             Intelligent insights for a greener tomorrow.
+          </p>
+        </div>
 
-              <div className="flex items-center text-xs text-gray-400 uppercase">
-                  <div className="flex-1 border-t border-gray-600"></div>
-                  <span className="px-4">Or</span>
-                  <div className="flex-1 border-t border-gray-600"></div>
-              </div>
+        <div className="space-y-4">
+          <Button
+            onClick={signInWithGoogle}
+            className="w-full h-12 text-base font-semibold bg-white text-gray-800 hover:bg-gray-100 border border-gray-300 shadow-sm"
+            size="lg"
+          >
+            <GoogleIcon />
+            <span className="ml-3">Sign in with Google</span>
+          </Button>
 
-              <Button
-                onClick={continueAsGuest}
-                className="w-full h-12 text-base font-semibold bg-gray-700 text-white hover:bg-gray-600"
-                variant="secondary"
-                size="lg"
-              >
-                Continue as Guest
-              </Button>
-            </div>
+          <div className="flex items-center text-xs text-gray-400 uppercase">
+              <div className="flex-1 border-t border-gray-300"></div>
+              <span className="px-4">Or</span>
+              <div className="flex-1 border-t border-gray-300"></div>
           </div>
+
+          <Button
+            onClick={continueAsGuest}
+            className="w-full h-12 text-base font-semibold bg-gray-700 text-white hover:bg-gray-600"
+            variant="secondary"
+            size="lg"
+          >
+            Continue as Guest
+          </Button>
         </div>
       </div>
     </div>
