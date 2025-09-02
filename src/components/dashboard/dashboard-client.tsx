@@ -145,7 +145,7 @@ export default function DashboardClient() {
         const convertedBlob = await heic2any({
           blob: file,
           toType: 'image/jpeg',
-          quality: 0.9,
+          quality: 0.8,
         });
         file = new File([convertedBlob as Blob], file.name.replace(/\.heic$/i, '.jpg'), { type: 'image/jpeg' });
       } catch (e) {
