@@ -97,7 +97,7 @@ export function Chatbot({ initialMessage }: ChatbotProps) {
             </div>
         </CardHeader>
         <CardContent className="p-0">
-          <div className="flex flex-col h-[450px]">
+          <div className="flex flex-col h-[550px]">
             <ScrollArea className="flex-grow p-4 bg-muted/30" ref={scrollAreaRef as any}>
               <div className="space-y-4">
                 {messages.map((msg, index) => (
@@ -146,3 +146,5 @@ export function Chatbot({ initialMessage }: ChatbotProps) {
     </div>
   );
 }
+
+    

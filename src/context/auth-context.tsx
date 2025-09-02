@@ -40,15 +40,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const pathname = usePathname();
 
   useEffect(() => {
+    // Attempt to retrieve guest status from sessionStorage
+    const guestId = sessionStorage.getItem('guestId');
+
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
         // If a user is logged in, they are not a guest.
+        sessionStorage.removeItem('guestId');
         setIsGuestState(false);
         setUserId(currentUser.uid);
+      } else if (guestId) {
+        // If there's no user but a guestId exists in session, they are a guest.
+        setIsGuestState(true);
+        setUserId(guestId);
       } else {
-        // When there is no user, we don't assume they are a guest.
-        // The user must explicitly choose to be a guest on the sign-in page.
+        // Not logged in and not a guest.
         setIsGuestState(false);
         setUserId(null);
       }
@@ -57,7 +64,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     return () => unsubscribe();
   }, []); // This effect should run only once
-
+  
   useEffect(() => {
     // This effect handles redirection logic.
     if (!loading) {
@@ -66,7 +73,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       if (!isAuthenticated && !isAuthPage) {
         router.push('/auth/signin');
-      }
+      } 
       // Only redirect away from signin page if they are a logged-in user, not a guest
       else if (user && isAuthPage) {
         router.push('/');
@@ -78,6 +85,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       await firebaseSignout(auth);
       // Clear all auth state
+      sessionStorage.removeItem('guestId');
       setIsGuestState(false);
       setUserId(null);
       setUser(null);
@@ -89,6 +97,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const setGuest = () => {
     const guestId = generateGuestId();
+    sessionStorage.setItem('guestId', guestId); // Store guest ID in sessionStorage
     setIsGuestState(true);
     setUserId(guestId);
     setUser(null); // Ensure no stale user object

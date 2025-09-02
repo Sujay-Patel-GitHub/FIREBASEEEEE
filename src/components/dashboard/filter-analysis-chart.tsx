@@ -1,7 +1,7 @@
 
 'use client';
 
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { RadialBar, RadialBarChart, Legend, ResponsiveContainer, Tooltip } from 'recharts';
 import {
   Card,
   CardContent,
@@ -22,9 +22,14 @@ interface FilterAnalysisChartProps {
 export function FilterAnalysisChart({ edgeScore, thermogramScore }: FilterAnalysisChartProps) {
   const chartData = [
     {
-      name: 'Scores',
-      edge: edgeScore,
-      thermogram: thermogramScore,
+      name: 'Edge',
+      score: edgeScore,
+      fill: 'var(--color-edge)',
+    },
+    {
+      name: 'Thermogram',
+      score: thermogramScore,
+      fill: 'var(--color-thermogram)',
     },
   ];
 
@@ -34,10 +39,12 @@ export function FilterAnalysisChart({ edgeScore, thermogramScore }: FilterAnalys
       color: 'hsl(var(--chart-3))',
     },
     thermogram: {
-        label: 'Thermogram Score',
-        color: 'hsl(var(--chart-4))',
+      label: 'Thermogram Score',
+      color: 'hsl(var(--chart-4))',
     }
   } satisfies ChartConfig;
+  
+  const averageScore = (edgeScore + thermogramScore) / 2;
 
   return (
     <Card className="animate-in fade-in-50 duration-500">
@@ -48,32 +55,46 @@ export function FilterAnalysisChart({ edgeScore, thermogramScore }: FilterAnalys
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={chartConfig} className="w-full h-48">
-           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={chartData} margin={{ top: 20, right: 20, left: 0, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                <XAxis 
-                    dataKey="name" 
-                    tickLine={false}
-                    axisLine={false}
-                    tick={false}
-                 />
-                <YAxis type="number" domain={[0, 100]} tickFormatter={(value) => `${value.toFixed(0)}`} />
-                <Tooltip 
+        <div className="relative">
+            <ChartContainer config={chartConfig} className="w-full h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <RadialBarChart 
+                  data={chartData} 
+                  innerRadius="30%" 
+                  outerRadius="90%" 
+                  barSize={15}
+                  startAngle={90}
+                  endAngle={-270}
+                >
+                  <Tooltip 
                     cursor={{fill: 'hsl(var(--muted))'}}
                     contentStyle={{
                         background: 'hsl(var(--background))',
                         borderColor: 'hsl(var(--border))',
                         borderRadius: 'var(--radius)',
                     }}
-                    formatter={(value, name) => [`${(value as number).toFixed(1)}`, chartConfig[name as keyof typeof chartConfig].label]}
-                />
-                <Legend />
-                <Bar dataKey="edge" fill="var(--color-edge)" radius={4} barSize={32} />
-                <Bar dataKey="thermogram" fill="var(--color-thermogram)" radius={4} barSize={32} />
-            </BarChart>
-           </ResponsiveContainer>
-        </ChartContainer>
+                    formatter={(value, name) => {
+                      const key = name.toLowerCase() as keyof typeof chartConfig;
+                      return [`${(value as number).toFixed(1)}`, chartConfig[key]?.label || name]
+                    }}
+                  />
+                  <RadialBar
+                    minAngle={15}
+                    background
+                    clockWise
+                    dataKey="score"
+                  />
+                  <Legend iconSize={10} layout="vertical" verticalAlign="middle" align="right" />
+                </RadialBarChart>
+              </ResponsiveContainer>
+            </ChartContainer>
+             <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <p className="text-4xl font-bold text-foreground">
+                    {averageScore.toFixed(1)}
+                </p>
+                <p className="text-sm text-muted-foreground mt-1">Average Score</p>
+            </div>
+        </div>
       </CardContent>
     </Card>
   );
