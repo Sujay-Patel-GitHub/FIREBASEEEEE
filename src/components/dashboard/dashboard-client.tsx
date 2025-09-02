@@ -95,7 +95,7 @@ const generateEdgeImage = async (dataUri: string): Promise<string> => {
 };
 
 export default function DashboardClient() {
-  const { user, userId, isGuest } = useAuth();
+  const { user, userId, isGuest, loading } = useAuth();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResultType | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -104,40 +104,38 @@ export default function DashboardClient() {
   const [analysisCount, setAnalysisCount] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+  const isInitialMount = useRef(true);
+
+  const handleReset = () => {
+    setIsAnalyzing(false);
+    setAnalysisResult(null);
+    setError(null);
+    setUploadedImage(null);
+    setEdgeImage(null);
+    if(fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
 
   useEffect(() => {
-    const fetchHistory = async () => {
-      if (userId) {
-        const q = query(
-          collection(db, 'analyses'),
-          where('userId', '==', userId),
-          orderBy('analyzedAt', 'desc'),
-          limit(1)
-        );
-        const querySnapshot = await getDocs(q);
-        if (!querySnapshot.empty) {
-            const latestDoc = querySnapshot.docs[0];
-            const data = latestDoc.data();
-             const result: AnalysisResultType = {
-                id: latestDoc.id,
-                ...data,
-                analyzedAt: data.analyzedAt.toDate(),
-            } as AnalysisResultType;
-            setAnalysisResult(result);
-            setUploadedImage(result.imageUrl);
-        }
-      }
-    };
-    fetchHistory();
+    // This effect runs only when the userId changes.
+    // We skip the initial mount to avoid clearing state on first load.
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+    } else {
+      // Any time the user logs in or out, reset the dashboard.
+      handleReset();
+    }
   }, [userId]);
+
 
   const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
     let file = event.target.files?.[0];
     if (!file) return;
-  
+
     // Check for HEIC format and convert if necessary
     const isHeic = file.type === 'image/heic' || file.type === 'image/heif' || file.name.toLowerCase().endsWith('.heic');
-    
+
     if (isHeic) {
       toast({
         title: 'Converting HEIC Image',
@@ -159,7 +157,7 @@ export default function DashboardClient() {
         return;
       }
     }
-  
+
     if (!file.type.startsWith('image/')) {
       toast({
         variant: 'destructive',
@@ -168,7 +166,7 @@ export default function DashboardClient() {
       });
       return;
     }
-  
+
     const reader = new FileReader();
     reader.onloadend = () => {
       const dataUri = reader.result as string;
@@ -177,7 +175,7 @@ export default function DashboardClient() {
     };
     reader.readAsDataURL(file);
   };
-  
+
   const saveAnalysis = async (result: Omit<AnalysisResultType, 'id' | 'userId'>) => {
     if (!userId) return;
     try {
@@ -225,16 +223,16 @@ export default function DashboardClient() {
           analyzedAt: serverTimestamp(), // Use server timestamp
           ...analysisData,
         };
-        
+
         // Don't set state with server timestamp, convert to Date for immediate use
-        setAnalysisResult({ 
-            ...newResult, 
-            id: new Date().toISOString(), 
+        setAnalysisResult({
+            ...newResult,
+            id: new Date().toISOString(),
             userId: userId!,
-            analyzedAt: new Date() 
+            analyzedAt: new Date()
         });
         setAnalysisCount(prev => prev + 1);
-        
+
         if (userId) {
             await saveAnalysis(newResult);
         }
@@ -266,16 +264,6 @@ export default function DashboardClient() {
     fileInputRef.current?.click();
   };
 
-  const handleReset = () => {
-    setIsAnalyzing(false);
-    setAnalysisResult(null);
-    setError(null);
-    setUploadedImage(null);
-    setEdgeImage(null);
-    if(fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-  };
   
   const AnalysisSkeleton = () => (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-4">

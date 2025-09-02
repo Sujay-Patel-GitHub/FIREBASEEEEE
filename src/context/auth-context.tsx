@@ -38,20 +38,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const pathname = usePathname();
 
   useEffect(() => {
-    const guestStatus = localStorage.getItem('isGuest') === 'true';
-    if (guestStatus) {
-        setIsGuestState(true);
-        let guestId = localStorage.getItem('guestId');
-        if (!guestId) {
-            guestId = generateGuestId();
-            localStorage.setItem('guestId', guestId);
-        }
-        setUserId(guestId);
-    } else {
-        setIsGuestState(false);
-        setUserId(null);
-    }
-
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
@@ -60,16 +46,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         localStorage.removeItem('guestId'); // Clear guest ID on login
         setIsGuestState(false);
         setUserId(currentUser.uid);
-      } else if (!localStorage.getItem('isGuest')) {
-        // Only if not a guest, clear the user state
-        setIsGuestState(false);
-        setUserId(null);
+      } else {
+        // Check for guest status only if there's no active user
+        const guestStatus = localStorage.getItem('isGuest') === 'true';
+        if (guestStatus) {
+            setIsGuestState(true);
+            let guestId = localStorage.getItem('guestId');
+            if (!guestId) {
+                guestId = generateGuestId();
+                localStorage.setItem('guestId', guestId);
+            }
+            setUserId(guestId);
+        } else {
+            // Not a logged-in user and not a guest
+            setIsGuestState(false);
+            setUserId(null);
+        }
       }
       setLoading(false);
     });
 
     return () => unsubscribe();
-  }, [pathname]); // Rerun on path change to catch client-side navigations
+  }, []); // This effect should run only once
 
   useEffect(() => {
     // This effect handles redirection logic.
@@ -77,12 +75,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const isAuthPage = pathname === '/auth/signin';
       const isAuthenticated = !!user || isGuest;
 
-      // If the user is not authenticated and not on the sign-in page, redirect them.
       if (!isAuthenticated && !isAuthPage) {
         router.push('/auth/signin');
       }
-      // If the user is logged in (not a guest) and on the sign-in page, redirect them to the dashboard.
-      // A guest should be allowed to stay on the sign-in page.
+      // Only redirect away from signin page if they are a logged-in user, not a guest
       else if (user && isAuthPage) {
         router.push('/');
       }
@@ -92,13 +88,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signOut = async () => {
     try {
       await firebaseSignOut(auth);
-      // Clear all local auth state
+      // Clear all local auth state and application state
       localStorage.removeItem('isGuest');
       localStorage.removeItem('guestId');
       setIsGuestState(false);
       setUserId(null);
       setUser(null);
-      // The onAuthStateChanged listener and the useEffect above will handle the redirect.
       router.push('/auth/signin');
     } catch (error) {
       console.error("Error signing out: ", error);
@@ -120,7 +115,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   // If a redirect is needed, the effect will handle it. We return null to avoid rendering children during the redirect flicker.
   if (!loading && !user && !isGuest && pathname !== '/auth/signin') {
-    return null; 
+    return null;
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
@@ -133,3 +128,4 @@ export const useAuth = () => {
   }
   return context;
 };
+
