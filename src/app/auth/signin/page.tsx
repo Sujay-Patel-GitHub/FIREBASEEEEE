@@ -37,6 +37,7 @@ export default function SignInPage() {
       await signInWithPopup(auth, provider);
       router.push('/');
     } catch (error: any) {
+      // This explicit check prevents console errors if the user closes the popup
       if (error.code !== 'auth/popup-closed-by-user') {
         console.error("Error signing in with Google: ", error);
       }
