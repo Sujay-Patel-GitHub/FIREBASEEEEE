@@ -13,7 +13,6 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
 import { analyzeLeaf } from '@/ai/flows/analyze-leaf-flow';
-import { summarizeDiseaseAnalysis } from '@/ai/flows/summarize-disease-analysis';
 import { AnalysisChart } from './analysis-chart';
 import { FilterAnalysisChart } from './filter-analysis-chart';
 import { Progress } from '@/components/ui/progress';
@@ -23,9 +22,11 @@ import { collection, addDoc, serverTimestamp, query, where, getDocs, orderBy, li
 import heic2any from 'heic2any';
 import { Chatbot } from './chatbot';
 import { Logo } from '../logo';
+import { useLanguage } from '@/context/language-context';
 
 export default function DashboardClient() {
   const { user, userId, isGuest, loading } = useAuth();
+  const { t, language } = useLanguage();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResultType | null>(null);
   const [initialChatMessage, setInitialChatMessage] = useState<string | undefined>();
@@ -276,13 +277,20 @@ export default function DashboardClient() {
     });
 
     try {
+      const langMap = {
+        en: 'English',
+        hi: 'Hindi',
+        gu: 'Gujarati',
+      };
+      const targetLanguage = langMap[language];
+
        // Run client-side filters and AI analysis in parallel
       const [sobelResult, thermogramResult, edgeScoreResult, thermogramScoreResult, analysisData] = await Promise.all([
         applySobelFilter(dataUri),
         applyThermogramFilter(dataUri),
         calculateEdgeScore(dataUri),
         calculateThermogramScore(dataUri),
-        analyzeLeaf({ photoDataUri: dataUri })
+        analyzeLeaf({ photoDataUri: dataUri, targetLanguage })
       ]);
       
       setSobelImage(sobelResult);
@@ -319,17 +327,7 @@ export default function DashboardClient() {
             analyzedAt: new Date() 
         });
 
-        // Generate summary for chatbot
-        const summaryResponse = await summarizeDiseaseAnalysis({
-          plantSpecies: newResult.plantSpecies,
-          diseaseDetection: `${newResult.diseaseDetection.name}: ${newResult.diseaseDetection.description}`,
-          severityLevel: newResult.severity.level,
-          confidenceScore: newResult.confidenceScore,
-          causeOfDisease: newResult.cause,
-          treatmentRecommendations: newResult.treatment.join(', ')
-        });
-
-        setInitialChatMessage(`${summaryResponse.summary} Do you have any other questions about this analysis?`);
+        setInitialChatMessage(analysisData.summaryForChatbot);
         
         if (userId && !isGuest) {
             await saveAnalysis(newResult);
@@ -384,8 +382,8 @@ export default function DashboardClient() {
         {!src && !isLoading && (
           <div className="text-center text-muted-foreground p-4">
             <UploadCloud className="mx-auto h-12 w-12" />
-            <p className="mt-4 font-semibold">Click or drag to upload</p>
-            <p className="text-xs mt-1">PNG, JPG, WEBP up to 10MB</p>
+            <p className="mt-4 font-semibold">{t('dashboard.click_or_drag')}</p>
+            <p className="text-xs mt-1">{t('dashboard.file_formats')}</p>
           </div>
         )}
         {src && (
@@ -432,24 +430,24 @@ export default function DashboardClient() {
         <div className="grid gap-6 md:grid-cols-2 animate-in fade-in-50 duration-500">
              <div className="rounded-lg p-6 bg-gradient-to-tr from-primary to-green-300 text-primary-foreground shadow-lg">
                 <div className="flex flex-row items-center justify-between space-y-0">
-                    <h3 className="text-sm font-medium">Plants Analyzed</h3>
+                    <h3 className="text-sm font-medium">{t('dashboard.plants_analyzed')}</h3>
                     <Microscope className="h-5 w-5" />
                 </div>
                 <div className="mt-4">
                     <div className="text-4xl font-bold">{isGuest ? 1 : totalAnalyses}</div>
                     <p className="text-xs text-primary-foreground/80">
-                      {isGuest ? "Analysis in this session." : "Total analyses in your history."}
+                      {isGuest ? t('dashboard.analysis_in_this_session') : t('dashboard.total_analyses_in_your_history')}
                     </p>
                 </div>
             </div>
               <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-sm font-medium">Detection Accuracy</CardTitle>
+                      <CardTitle className="text-sm font-medium">{t('dashboard.detection_accuracy')}</CardTitle>
                       <Leaf className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent>
                       <div className="text-2xl font-bold">{analysisResult.confidenceScore.toFixed(1)}%</div>
-                      <p className="text-xs text-muted-foreground">AI confidence for this analysis.</p>
+                      <p className="text-xs text-muted-foreground">{t('dashboard.ai_confidence_for_this_analysis')}</p>
                       <Progress value={analysisResult.confidenceScore} className="mt-2 h-2" />
                   </CardContent>
               </Card>
@@ -459,20 +457,20 @@ export default function DashboardClient() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Card className="lg:col-span-1">
             <CardHeader>
-                <CardTitle>Image Analysis</CardTitle>
-                <CardDescription>Upload an image to see the original and filtered versions.</CardDescription>
+                <CardTitle>{t('dashboard.image_analysis')}</CardTitle>
+                <CardDescription>{t('dashboard.image_analysis_description')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {uploadedImage ? (
                         <>
-                            <ImageDisplay src={uploadedImage} alt="Uploaded leaf" title="Original Image" isLoading={isAnalyzing && !analysisResult} />
-                            <ImageDisplay src={sobelImage} alt="Sobel filtered leaf" title="Sobel Edge Detection" isLoading={isAnalyzing && !sobelImage} />
-                            <ImageDisplay src={thermogramImage} alt="Thermogram of leaf" title="Simulated Thermogram" isLoading={isAnalyzing && !thermogramImage} />
+                            <ImageDisplay src={uploadedImage} alt="Uploaded leaf" title={t('dashboard.original_image')} isLoading={isAnalyzing && !analysisResult} />
+                            <ImageDisplay src={sobelImage} alt="Sobel filtered leaf" title={t('dashboard.sobel_edge_detection')} isLoading={isAnalyzing && !sobelImage} />
+                            <ImageDisplay src={thermogramImage} alt="Thermogram of leaf" title={t('dashboard.simulated_thermogram')} isLoading={isAnalyzing && !thermogramImage} />
                         </>
                     ) : (
                         <div onClick={handleUploadClick} className="cursor-pointer md:col-span-2 lg:col-span-3">
-                            <ImageDisplay src={null} alt="Upload placeholder" title="Upload an Image to Begin" isLoading={isAnalyzing} />
+                            <ImageDisplay src={null} alt="Upload placeholder" title={t('dashboard.upload_image_to_begin')} isLoading={isAnalyzing} />
                         </div>
                     )}
                 </div>
@@ -483,7 +481,7 @@ export default function DashboardClient() {
              {isAnalyzing && !analysisResult && (
                 <Card>
                   <CardHeader>
-                    <CardTitle>Analysis in Progress</CardTitle>
+                    <CardTitle>{t('dashboard.analysis_in_progress')}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <AnalysisSkeleton />
@@ -492,7 +490,7 @@ export default function DashboardClient() {
              )}
              {error && (
                 <Alert variant="destructive">
-                    <AlertTitle>Analysis Failed</AlertTitle>
+                    <AlertTitle>{t('dashboard.analysis_failed')}</AlertTitle>
                     <AlertDescription>{error}</AlertDescription>
                 </Alert>
              )}
@@ -500,8 +498,8 @@ export default function DashboardClient() {
                 <>
                   <Card>
                     <CardHeader>
-                      <CardTitle>AI Analysis Results</CardTitle>
-                      <CardDescription>Detailed insights from our AI analysis.</CardDescription>
+                      <CardTitle>{t('dashboard.ai_analysis_results')}</CardTitle>
+                      <CardDescription>{t('dashboard.detailed_insights')}</CardDescription>
                     </CardHeader>
                     <CardContent>
                       <AnalysisResults result={analysisResult} />
@@ -519,8 +517,8 @@ export default function DashboardClient() {
                   <Card className="flex h-full items-center justify-center">
                     <CardContent className="text-center text-muted-foreground p-8">
                         <Microscope className="mx-auto h-12 w-12" />
-                        <h3 className="mt-4 text-lg font-semibold">Awaiting Analysis</h3>
-                        <p className="mt-1 text-sm">Upload a leaf image to begin.</p>
+                        <h3 className="mt-4 text-lg font-semibold">{t('dashboard.awaiting_analysis')}</h3>
+                        <p className="mt-1 text-sm">{t('dashboard.awaiting_analysis_description')}</p>
                     </CardContent>
                   </Card>
                 )

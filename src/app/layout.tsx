@@ -3,6 +3,7 @@ import './globals.css';
 import { MainLayout } from '@/components/layout/main-layout';
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from '@/context/auth-context';
+import { LanguageProvider } from '@/context/language-context';
 
 export const metadata: Metadata = {
   title: 'HARITRAKSHAK',
@@ -23,9 +24,11 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased">
         <AuthProvider>
-          <MainLayout>
-            {children}
-          </MainLayout>
+          <LanguageProvider>
+            <MainLayout>
+              {children}
+            </MainLayout>
+          </LanguageProvider>
         </AuthProvider>
         <Toaster />
       </body>

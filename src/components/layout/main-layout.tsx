@@ -11,6 +11,7 @@ import { SidebarNav } from './sidebar-nav';
 import { Header } from './header';
 import { useAuth } from '@/context/auth-context';
 import { usePathname } from 'next/navigation';
+import { LanguageSelector } from '../language-selector';
 
 
 export function MainLayout({ children }: { children: ReactNode }) {
@@ -53,6 +54,7 @@ export function MainLayout({ children }: { children: ReactNode }) {
             </div>
           </main>
         </div>
+        <LanguageSelector />
       </SidebarInset>
     </SidebarProvider>
   );

@@ -1,4 +1,3 @@
-
 'use client';
 import {
   SidebarHeader,
@@ -16,6 +15,7 @@ import {
   LogOut,
   User as UserIcon,
   Info,
+  Languages,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -32,17 +32,19 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-
-const menuItems = [
-  { href: '/', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/analysis-history', label: 'Analysis History', icon: History },
-  { href: '/profile', label: 'Profile', icon: UserIcon },
-  { href: '/settings', label: 'Settings', icon: Settings },
-];
+import { useLanguage } from '@/context/language-context';
 
 export function SidebarNav() {
   const pathname = usePathname();
   const { user, isGuest, signOut } = useAuth();
+  const { setShowLanguageModal, t } = useLanguage();
+
+  const menuItems = [
+    { href: '/', label: t('sidebar.dashboard'), icon: LayoutDashboard },
+    { href: '/analysis-history', label: t('sidebar.analysis_history'), icon: History },
+    { href: '/profile', label: t('sidebar.profile'), icon: UserIcon },
+    { href: '/settings', label: t('sidebar.settings'), icon: Settings },
+  ];
 
   const getInitials = (name: string) => {
     const names = name.split(' ');
@@ -80,11 +82,17 @@ export function SidebarNav() {
             </SidebarMenuItem>
           ))}
             <SidebarMenuItem>
+              <SidebarMenuButton onClick={() => setShowLanguageModal(true)} className="justify-start w-full">
+                <Languages className="h-4 w-4" />
+                <span>{t('sidebar.language')}</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
                 <Dialog>
                     <DialogTrigger asChild>
                         <SidebarMenuButton className="justify-start w-full">
                             <Info className="h-4 w-4" />
-                            <span>Developed by</span>
+                            <span>{t('sidebar.developed_by')}</span>
                         </SidebarMenuButton>
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-[425px]">
@@ -99,7 +107,7 @@ export function SidebarNav() {
                                 <h3 className="font-semibold text-foreground mb-2">Mentor</h3>
                                 <div className="flex items-center gap-4">
                                     <Image 
-                                      src="https://i.ibb.co/zVDsF5dk/Whats-App-Image-2025-09-07-at-13-52-38-9d22302e.jpg"
+                                      src="https://i.ibb.co/zVDsF5dk/Whats-App-Image-2025-09-07-at-13-52-38-9d22302e.jpg" 
                                       alt="Dr. Shriji Gandhi"
                                       width={60}
                                       height={60}
@@ -107,7 +115,7 @@ export function SidebarNav() {
                                       data-ai-hint="person"
                                     />
                                     <div>
-                                        <p className="text-xs text-muted-foreground">Prof. of Government Polytechnic Ahmedabad</p>
+                                        <p className="text-xs text-muted-foreground">Proff of Government Polytechnic Ahmedabad</p>
                                         <p className="text-sm font-medium text-foreground">DR. SHRIJI GANDHI</p>
                                         <p className="text-xs text-muted-foreground">Instrumentation & Control</p>
                                     </div>

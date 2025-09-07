@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { AlertCircle, FlaskConical, Stethoscope, Trees, Leaf } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useLanguage } from '@/context/language-context';
 
 interface AnalysisResultsProps {
   result: AnalysisResult;
@@ -58,25 +59,26 @@ const SeverityIndicator = ({ level, score }: { level: 'Low' | 'Medium' | 'High' 
 };
 
 export function AnalysisResults({ result }: AnalysisResultsProps) {
+  const { t } = useLanguage();
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-4 animate-in fade-in-50 duration-500">
-      <ResultCard icon={<Trees className="h-6 w-6 text-primary" />} title="Plant Species">
+      <ResultCard icon={<Trees className="h-6 w-6 text-primary" />} title={t('dashboard.plant_species')}>
         <p className="font-medium text-foreground">{result.plantSpecies}</p>
       </ResultCard>
 
-      <ResultCard icon={<Stethoscope className="h-6 w-6 text-primary" />} title="Disease Detection" description={result.diseaseDetection.name}>
+      <ResultCard icon={<Stethoscope className="h-6 w-6 text-primary" />} title={t('dashboard.disease_detection')} description={result.diseaseDetection.name}>
         <p className="text-sm text-muted-foreground">{result.diseaseDetection.description}</p>
       </ResultCard>
       
-      <ResultCard icon={<AlertCircle className="h-6 w-6 text-primary" />} title="Severity Level">
+      <ResultCard icon={<AlertCircle className="h-6 w-6 text-primary" />} title={t('dashboard.severity_level')}>
         <SeverityIndicator level={result.severity.level} score={result.severity.score} />
       </ResultCard>
 
-      <ResultCard icon={<FlaskConical className="h-6 w-6 text-primary" />} title="Probable Cause">
+      <ResultCard icon={<FlaskConical className="h-6 w-6 text-primary" />} title={t('dashboard.probable_cause')}>
         <p className="text-sm text-muted-foreground">{result.cause}</p>
       </ResultCard>
 
-      <ResultCard icon={<Leaf className="h-6 w-6 text-primary" />} title="Remedies">
+      <ResultCard icon={<Leaf className="h-6 w-6 text-primary" />} title={t('dashboard.remedies')}>
         <ul className="space-y-2 text-sm text-muted-foreground list-disc pl-4">
             {result.treatment.map((rec, i) => <li key={i}>{rec}</li>)}
         </ul>
