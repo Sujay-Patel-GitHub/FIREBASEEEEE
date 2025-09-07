@@ -99,7 +99,7 @@ export function SidebarNav() {
                                 <h3 className="font-semibold text-foreground mb-2">Mentor</h3>
                                 <div className="flex items-center gap-4">
                                     <Image 
-                                      src="https://i.ibb.co/3mNgSSBn/1744358054-66b2022b8b3a7.jpg" 
+                                      src="https://i.ibb.co/zVDsF5dk/Whats-App-Image-2025-09-07-at-13-52-38-9d22302e.jpg"
                                       alt="Dr. Shriji Gandhi"
                                       width={60}
                                       height={60}
@@ -110,7 +110,6 @@ export function SidebarNav() {
                                         <p className="text-xs text-muted-foreground">Proff of Government Polytechnic Ahmedabad</p>
                                         <p className="text-sm font-medium text-foreground">DR. SHRIJI GANDHI</p>
                                         <p className="text-xs text-muted-foreground">Instrumentation & Control</p>
-                                        <a href="tel:+919510352451" className="text-xs text-muted-foreground block hover:underline">+91 9510352451</a>
                                     </div>
                                 </div>
                             </div>
