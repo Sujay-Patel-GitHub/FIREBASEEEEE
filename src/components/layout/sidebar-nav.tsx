@@ -107,7 +107,7 @@ export function SidebarNav() {
                                       data-ai-hint="person"
                                     />
                                     <div>
-                                        <p className="text-xs text-muted-foreground">Prof of Government Polytechnic Ahmedabad</p>
+                                        <p className="text-xs text-muted-foreground">Prof. of Government Polytechnic Ahmedabad</p>
                                         <p className="text-sm font-medium text-foreground">DR. SHRIJI GANDHI</p>
                                         <p className="text-xs text-muted-foreground">Instrumentation & Control</p>
                                     </div>
