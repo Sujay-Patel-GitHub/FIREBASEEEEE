@@ -15,6 +15,7 @@ import {
   Settings,
   LogOut,
   User as UserIcon,
+  Info,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -22,6 +23,15 @@ import { useAuth } from '@/context/auth-context';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Button } from '../ui/button';
 import { Logo } from '../logo';
+import Image from 'next/image';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 const menuItems = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
@@ -69,9 +79,58 @@ export function SidebarNav() {
               </SidebarMenuButton>
             </SidebarMenuItem>
           ))}
+            <SidebarMenuItem>
+                <Dialog>
+                    <DialogTrigger asChild>
+                        <SidebarMenuButton className="justify-start w-full">
+                            <Info className="h-4 w-4" />
+                            <span>Developed by</span>
+                        </SidebarMenuButton>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[425px]">
+                        <DialogHeader>
+                            <DialogTitle>About the Developers</DialogTitle>
+                            <DialogDescription>
+                                This application was designed and developed by a passionate team.
+                            </DialogDescription>
+                        </DialogHeader>
+                        <div className="py-4 space-y-4">
+                            <div>
+                                <h3 className="font-semibold text-foreground mb-2">Mentor</h3>
+                                <div className="flex items-center gap-4">
+                                    <Image 
+                                      src="https://i.ibb.co/3mNgSSBn/1744358054-66b2022b8b3a7.jpg" 
+                                      alt="Dr. Shriji Gandhi"
+                                      width={60}
+                                      height={60}
+                                      className="rounded-full shrink-0"
+                                      data-ai-hint="person"
+                                    />
+                                    <div>
+                                        <p className="text-xs text-muted-foreground">Proff of Government Polytechnic Ahmedabad</p>
+                                        <p className="text-sm font-medium text-foreground">DR. SHRIJI GANDHI</p>
+                                        <p className="text-xs text-muted-foreground">Instrumentation & Control</p>
+                                        <a href="tel:+919510352451" className="text-xs text-muted-foreground block hover:underline">+91 9510352451</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <h3 className="font-semibold text-foreground mb-2">Student Developers</h3>
+                                <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
+                                    <li>SUJAY PATEL</li>
+                                    <li>DAKSH PATEL</li>
+                                    <li>JANIL MISTRY</li>
+                                    <li>TUSHAR PANCHAL</li>
+                                    <li>SUMUKH PATEL</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </DialogContent>
+                </Dialog>
+            </SidebarMenuItem>
         </SidebarMenu>
       </SidebarContent>
-      <SidebarFooter className="p-2">
+      <SidebarFooter className="p-2 space-y-2">
         {user ? (
           <div className="flex items-center gap-3 p-2 rounded-lg bg-muted/50">
             <Avatar className="h-9 w-9">
